@@ -1,0 +1,71 @@
+body {
+    background-color: #fff;
+    color: #fff;
+    min-height: 100vh;
+  }
+  .form-box {
+    /* max-width: 600px; */
+    width: 500px;
+    margin: auto;
+    margin-top: 100px;
+    background-color: transparent;
+    padding: 30px;
+    border-radius: 10px;
+  }
+  
+  .glass-box {
+    background-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    color: #fff;
+  }
+  
+  .form-control {
+    background-color: transparent;
+    border: 1px solid purple;
+    color: #1e1e1e;
+    border-radius: 20px;
+  }
+  .form-control:focus {
+    background-color: #1e1e1e;
+    color: #fff;
+    border-color: #0d6efd;
+    box-shadow: none;
+  }
+  .btn-switch {
+    width: 50%;
+    border-radius: 20px;
+  }
+  .social-icons i {
+    font-size: 1.2rem;
+    margin: 0 10px;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background-color: purple;
+    border: none;
+    border-radius: 20px;
+  }
+  .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  .link-light:hover {
+    color: #0d6efd;
+  }
+  .form-control::placeholder {
+    color: white !important;
+    opacity: 1;
+  }
+  .auth{
+    background-image: url(../img/freepik__upload__58996.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .auth-logo{
+    width: 100%;
+  }
+  .auth-logo img{
+    width: 200px;
+  }

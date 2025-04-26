@@ -1,0 +1,13 @@
+input.form-control {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.95rem;
+  }
+  .logo{
+    width: 100%;
+    text-align: center;
+    margin:10px 0;
+  }
+  .logo img{
+    width: 150px;
+  }
+    
