@@ -1,0 +1,79 @@
+body {
+    background-color: #fff;
+    color: #fff;
+    min-height: 100vh;
+  }
+  .form-box {
+    width: 500px;
+    margin: auto;
+    background-color: transparent;
+    padding: 30px;
+    border-radius: 10px;
+  }
+  
+  .glass-box {
+    background-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    color: #fff;
+  }
+  
+  .form-login {
+    background-color: transparent !important;
+    border: 1px solid purple !important;
+    color: #1e1e1e !important;
+    border-radius: 20px !important;
+    padding:8px 12px !important;
+    font-size:1rem !important;
+  }
+  .form-login:focus {
+    color: #fff !important;
+    border-color: purple !important;
+    box-shadow: none !important;
+  }
+  .btn-switch {
+    background-color:white !important;
+    color:black !important;
+    border-radius: 20px !important;
+    border:none !important;
+    transition:background-color .2s ease !important;
+  }
+  .btn-switch.active {
+    background-color:#ddd !important;
+  }
+  .btn-purple {
+    background-color: purple !important;
+    border: none !important;
+    border-radius: 20px !important;
+  }
+  .input-check input:checked {
+    background-color: purple !important;
+    border-color: purple !important;
+  }
+  .input-check label{
+    color:white;
+  }
+  .link-light:hover {
+    color: purple !important;
+  }
+  .form-login::placeholder {
+    color: white !important;
+  }
+  .auth{
+    background-image: url(./../img/freepik__upload__58996.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    position:fixed;
+    top:0;
+    right:0;
+    left:0;
+    bottom:0;
+    display:flex;
+  }
+  
+  .auth-logo{
+    width: 100%;
+  }
+  .auth-logo img{
+    width: 200px;
+  }
