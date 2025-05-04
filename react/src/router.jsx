@@ -4,6 +4,7 @@ import {
 
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Profile from './pages/Profile.jsx';
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard/setting",
-    element: <h1>Profile Setting</h1>,
+    element: <Profile />,
   },
 ]);
 

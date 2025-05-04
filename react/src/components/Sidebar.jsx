@@ -4,86 +4,113 @@ import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Link } from 'react-router';
 
 function Sidebar({show}) {
+  const [openMenus, setOpenMenus] = React.useState({});
+  const [activeMenu, setActiveMenu] = React.useState(null);
+
+  const toggleMenu = menuId => {
+    setOpenMenus(prevState => ({
+      [menuId]: !prevState[menuId],
+    }));
+
+    setActiveMenu(prevActiveMenu => (prevActiveMenu === menuId ? null : menuId));
+  };
+
+  const menuItems = [
+    {
+      id: "projects",
+      label: "Projects",
+      items: [
+        { label: "Project Lists (Admin)", link: "../pages/user.html" },
+        { label: "Project Lists (Coordinator & Supervisor)", link: "../pages/lecturer.html" },
+        { label: "Project Lists (Student)", link: "../pages/student.html" },
+      ],
+    },
+    {
+      id: "batches",
+      label: "Batches",
+      items: [{ label: "Batch Lists", link: "../pages/profile.html" }],
+    },
+    {
+      id: "users",
+      label: "Users",
+      items: [
+        { label: "User Requests", link: "../pages/reports.html" },
+        { label: "Lecturer Lists", link: "../pages/reports.html" },
+        { label: "Student Lists", link: "../pages/reports.html" },
+      ],
+    },
+    {
+      id: "courses",
+      label: "Courses",
+      items: [
+        { label: "Course Lists", link: "../pages/reports.html" },
+      ],
+    },
+  ];
+
   return (
     <>
       {/* <!-- Sidebar --> */}
-      <aside className={`sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 ${(show ? "bg-white" : "")}sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2`}
+      <aside
+        className={`sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 ${show ? "bg-white" : ""}sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2`}
         id="sidenav-main">
         <div className="sidenav-header">
           <Link to="/dashboard" className="logo cursor-pointer">
             <CFImage src={Logo} alt="Cifpec Logo" width="100px" className="text-center mt-3" />
           </Link>
         </div>
-        <hr className="horizontal dark mt-0 mb-2"/>
-          <div className="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <Link to="/dashboard" className="nav-link active bg-gradient-dark text-white" href="../pages/dashboard.html">
-                  <i className="material-symbols-rounded opacity-5">dashboard</i>
-                  <span className="nav-link-text ms-1">Dashboard</span>
-                </Link>
+        <hr className="horizontal dark mt-0 mb-2" />
+        <div className="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+          <ul className="navbar-nav">
+            <li className="nav-item">
+              <Link to="/dashboard" className={`nav-link ${activeMenu === "dashboard" ? "active bg-gradient-dark text-white" : "text-dark"}`} onClick={() => setActiveMenu("dashboard")}>
+                <i className="material-symbols-rounded opacity-5">dashboard</i>
+                <span className="nav-link-text ms-1">Dashboard</span>
+              </Link>
+            </li>
+
+            {menuItems.map(menu => (
+              <li className="nav-item" key={menu.id}>
+                <div className={`nav-link d-flex justify-content-between align-items-center ${activeMenu === menu.id ? "active bg-gradient-dark text-white" : " text-dark"}`} onClick={() => toggleMenu(menu.id)} style={{ cursor: "pointer" }}>
+                  <div>
+                    <i className="material-symbols-rounded opacity-5">table_view</i>
+                    <span className="nav-link-text ms-1">{menu.label}</span>
+                  </div>
+                  <i className="material-symbols-rounded">{openMenus[menu.id] ? "expand_less" : "expand_more"}</i>
+                </div>
+
+                {openMenus[menu.id] && (
+                  <ul className="nav flex-column ms-4">
+                    {menu.items.map((item, index) => (
+                      <li className="nav-item" key={index}>
+                        <a className="nav-link text-dark" href={item.link}>
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
-              <li className="nav-item">
-                <i className="material-symbols-rounded opacity-5">table_view</i>
-                <span className="nav-link-text ms-4">Users</span>
-                <ul>
-                  <li>
-                    <a className="nav-link text-dark" href="../pages/tables.html">
-                      <span className="nav-link-text ms-1">User Request</span>
-                    </a>
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <a className="nav-link text-dark" href="../pages/tables.html">
-                      <span className="nav-link-text ms-1">Lecturer List</span>
-                    </a>
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <a className="nav-link text-dark" href="../pages/tables.html">
-                      <span className="nav-link-text ms-1">Student</span>
-                    </a>
-                  </li>
-                </ul>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link text-dark" href="../pages/billing.html">
-                  <i className="material-symbols-rounded opacity-5">receipt_long</i>
-                  <span className="nav-link-text ms-1">Sesi</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link text-dark" href="../pages/virtual-reality.html">
-                  <i className="material-symbols-rounded opacity-5">view_in_ar</i>
-                  <span className="nav-link-text ms-1">Pengguna</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link text-dark" href="../pages/rtl.html">
-                  <i className="material-symbols-rounded opacity-5">format_textdirection_r_to_l</i>
-                  <span className="nav-link-text ms-1">Kursus</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link text-dark" href="../pages/notifications.html">
-                  <i className="material-symbols-rounded opacity-5">notifications</i>
-                  <span className="nav-link-text ms-1">Web Settings</span>
-                </a>
-              </li>
-            </ul>
+            ))}
+
+            <li className="nav-item">
+              <Link to={"/web-setting"} className={`nav-link ${activeMenu === "web-setting" ? "active bg-gradient-dark text-white" : "text-dark"}`} onClick={() => setActiveMenu("web-setting")}>
+                <i className="material-symbols-rounded opacity-5">notifications</i>
+                <span className="nav-link-text ms-1">Web Settings</span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div className="sidenav-footer position-absolute w-100 bottom-0 ">
+          <div className="mx-3">
+            <Link to={"/dashboard/setting"} className="btn btn-outline-dark mt-4 w-100" type="button">
+              Profil Pengguna
+            </Link>
+            <a className="btn bg-gradient-dark w-100" href="https://www.creative-tim.com/product/material-dashboard-pro?ref=sidebarfree" type="button">
+              Log Keluar
+            </a>
           </div>
-          <div className="sidenav-footer position-absolute w-100 bottom-0 ">
-            <div className="mx-3">
-              <a className="btn btn-outline-dark mt-4 w-100"
-                href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard?ref=sidebarfree"
-                type="button">Profil Pengguna</a>
-              <a className="btn bg-gradient-dark w-100"
-                href="https://www.creative-tim.com/product/material-dashboard-pro?ref=sidebarfree" type="button">Log
-                Keluar</a>
-            </div>
-          </div>
+        </div>
       </aside>
     </>
   );
