@@ -20,22 +20,22 @@ function Sidebar({show}) {
       id: "projects",
       label: "Projects",
       items: [
-        { label: "Project Lists (Admin)", link: "../pages/user.html" },
-        { label: "Project Lists (Coordinator & Supervisor)", link: "../pages/lecturer.html" },
-        { label: "Project Lists (Student)", link: "../pages/student.html" },
+        { label: "Project Lists (Admin)", link: "/dashboard/projectlist" },
+        { label: "Project Lists (Coordinator & Supervisor)", link: "/dashboard/projectlist" },
+        { label: "Project Lists (Student)", link: "/dashboard/studentproject" },
       ],
     },
     {
       id: "batches",
       label: "Batches",
-      items: [{ label: "Batch Lists", link: "../pages/profile.html" }],
+      items: [{ label: "Batch Lists", link: "/dashboard/batch" }],
     },
     {
       id: "users",
       label: "Users",
       items: [
-        { label: "User Requests", link: "../pages/reports.html" },
-        { label: "Lecturer Lists", link: "../pages/reports.html" },
+        { label: "User Requests", link: "/dashboard/userrequest" },
+        { label: "Lecturer Lists", link: "/dashboard/lecturelist" },
         { label: "Student Lists", link: "../pages/reports.html" },
       ],
     },
@@ -43,7 +43,7 @@ function Sidebar({show}) {
       id: "courses",
       label: "Courses",
       items: [
-        { label: "Course Lists", link: "../pages/reports.html" },
+        { label: "Course Lists", link: "/dashboard/course" },
       ],
     },
   ];
@@ -83,9 +83,9 @@ function Sidebar({show}) {
                   <ul className="nav flex-column ms-4">
                     {menu.items.map((item, index) => (
                       <li className="nav-item" key={index}>
-                        <a className="nav-link text-dark" href={item.link}>
+                        <Link to={item.link} className="nav-link text-dark">
                           {item.label}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
