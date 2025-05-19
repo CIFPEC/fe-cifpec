@@ -1,5 +1,6 @@
 import React from 'react'
 import Main from '../components/Main'
+import { Link } from 'react-router-dom'
 
 function Batch(){
 
@@ -17,7 +18,7 @@ function Batch(){
                                 <div className="tab-pane fade show active" id="batch" role="tabpanel">
                                     <div className="d-flex justify-content-between align-items-center px-3 pt-3">
                                         <h6>Batch Lists</h6>
-                                        <button className="btn btn-primary btn-sm">Create New</button>
+                                        <Link to={"/dashboard/batch/new"} className="btn btn-primary btn-sm">Create New</Link>
                                     </div>
 
                                     <div className="table-responsive p-3">

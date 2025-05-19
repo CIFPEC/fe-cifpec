@@ -1,6 +1,6 @@
 import {
   createBrowserRouter
-} from "react-router";
+} from "react-router-dom";
 
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -13,6 +13,8 @@ import StudentProject from "./pages/StudentProject.jsx";
 import UserRequest from "./pages/UserRequest.jsx";
 import ProjectRequirement from "./pages/ProjectRequirement.jsx";
 import ProjectList from "./pages/ProjectList.jsx";
+import WebSetting from "./pages/WebSetting.jsx";
+import VerifyEmailPage from "./pages/VerifyEmail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -63,6 +65,24 @@ const router = createBrowserRouter([
     path: "/dashboard/projectlist",
     element: <ProjectList />,
   },
+  {
+    path: "/dashboard/batch/new",
+    element: <SetupBatch />,
+  },
+  {
+    path: "/dashboard/project/newproject",
+    element: <StudentProject />,
+  },
+  {
+    path: "/dashboard/web-setting",
+    element: <WebSetting />,
+  },
+  {
+    path: "/verifyemail",
+    element: <VerifyEmailPage />,
+  },
+
+
 ]);
 
 export default router;

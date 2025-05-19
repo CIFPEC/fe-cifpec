@@ -1,7 +1,7 @@
 import React from 'react'
 import CFImage from './CFImage';
 import Logo from "./../assets/img/Cifpec-Logo.png";
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 function Sidebar({show}) {
   const [openMenus, setOpenMenus] = React.useState({});
@@ -22,7 +22,7 @@ function Sidebar({show}) {
       items: [
         { label: "Project Lists (Admin)", link: "/dashboard/projectlist" },
         { label: "Project Lists (Coordinator & Supervisor)", link: "/dashboard/projectlist" },
-        { label: "Project Lists (Student)", link: "/dashboard/studentproject" },
+        { label: "Project Lists (Student)", link: "/dashboard/projectlist" },
       ],
     },
     {
@@ -94,7 +94,7 @@ function Sidebar({show}) {
             ))}
 
             <li className="nav-item">
-              <Link to={"/web-setting"} className={`nav-link ${activeMenu === "web-setting" ? "active bg-gradient-dark text-white" : "text-dark"}`} onClick={() => setActiveMenu("web-setting")}>
+              <Link to={"/dashboard/web-setting"} className={`nav-link ${activeMenu === "web-setting" ? "active bg-gradient-dark text-white" : "text-dark"}`} onClick={() => setActiveMenu("web-setting")}>
                 <i className="material-symbols-rounded opacity-5">notifications</i>
                 <span className="nav-link-text ms-1">Web Settings</span>
               </Link>

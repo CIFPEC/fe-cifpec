@@ -1,5 +1,6 @@
 import React from 'react'
 import Main from '../components/Main'
+import { Link } from 'react-router-dom'
 
 function ProjectList() {
 
@@ -13,8 +14,8 @@ function ProjectList() {
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold mb-4">Senarai Projek (semua department)</h6>
 
-                        {/* <!-- Butang Export --> */}
-                        <div class="d-flex justify-content-end mb-2">
+                        <div className="d-flex justify-content-end mb-2">
+                            <Link to={"/dashboard/project/newproject"} className="btn btn-primary me-3">Create New</Link>
                             <button class="btn btn-success">Export</button>
                         </div>
                     </div>
