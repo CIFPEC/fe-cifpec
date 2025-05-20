@@ -15,11 +15,12 @@ import ProjectRequirement from "./pages/ProjectRequirement.jsx";
 import ProjectList from "./pages/ProjectList.jsx";
 import WebSetting from "./pages/WebSetting.jsx";
 import VerifyEmailPage from "./pages/VerifyEmail.jsx";
+import Homepage from "./pages/Homepage.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Auth />,
+    element: <Homepage />,
   },
   {
     path: "/login",
