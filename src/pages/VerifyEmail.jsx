@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
     const handleVerify = () => {
         if (inputCode === correctCode) {
             setMessage('Verification successful! Your email has been verified.');
-            setTimeout(() => location('/'), 2000);
+            setTimeout(() => navigate('/'), 2000); // ✅ Betulkan penggunaan navigate
         } else {
             setMessage('Invalid code. Please try again.');
         }
@@ -26,10 +26,17 @@ export default function VerifyEmailPage() {
                     <h3 className="mb-4 text-center">Verify Your Email</h3>
                     <p className="text-center">Enter the code sent to <strong>{email}</strong></p>
                     <Form.Group className="mb-3">
-                        <Form.Control type="text" placeholder="Enter your code" value={inputCode} onChange={(e) => setInputCode(e.target.value)} />
+                        <Form.Control
+                            type="text"
+                            placeholder="Enter your code"
+                            value={inputCode}
+                            onChange={(e) => setInputCode(e.target.value)}
+                        />
                     </Form.Group>
                     <Button variant="primary" className="w-100 mb-3" onClick={handleVerify}>Verify</Button>
-                    {message && <Alert variant={message.includes('successful') ? 'success' : 'danger'}>{message}</Alert>}
+                    {message && <Alert variant={message.includes('successful') ? 'success' : 'danger'}>
+                        {message}
+                    </Alert>}
                 </Card.Body>
             </Card>
         </Container>

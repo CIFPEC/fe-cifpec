@@ -84,7 +84,7 @@ function Auth() {
       // Redirect to verify email page
       setTimeout(() => {
         navigate('/verifyemail', { state: { email: forms.email, code: code } });
-      }, 20000);
+      }, 10000);
     } else {
       alert("Passwords do not match or fields are empty");
     }
