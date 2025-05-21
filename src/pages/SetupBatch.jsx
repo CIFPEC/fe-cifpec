@@ -1,180 +1,225 @@
 import React, { useState } from 'react';
 import Main from '../components/Main';
 import { useNavigate } from 'react-router-dom';
+import Select from 'react-select';
 
 function SetupBatch() {
   const navigate = useNavigate();
 
   const [batchName, setBatchName] = useState('');
-  const [course, setCourse] = useState('');
+  const [courses, setCourses] = useState([]);
   const [status, setStatus] = useState('active');
+  const [isAdvanceEnabled, setIsAdvanceEnabled] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState('');
+  const [showAdvance, setShowAdvance] = useState(false);
+
+  const [requirements, setRequirements] = useState([]);
+
+  const courseOptions = [
+    { value: 'IT', label: 'IT' },
+    { value: 'Meka', label: 'Meka' },
+    { value: 'Pembuatan', label: 'Pembuatan' },
+    { value: 'Automotif', label: 'Automotif' },
+    { value: 'Telekomunikasi', label: 'Telekomunikasi' }
+  ];
+
+  const handleAddRequirement = () => {
+    setRequirements([
+      ...requirements,
+      { name: '', type: 'text', required: false }
+    ]);
+  };
+
+  const handleRemoveRequirement = (index) => {
+    const updated = [...requirements];
+    updated.splice(index, 1);
+    setRequirements(updated);
+  };
+
+  const handleRequirementChange = (index, field, value) => {
+    const updated = [...requirements];
+    updated[index][field] = value;
+    setRequirements(updated);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const newBatch = {
       name: batchName,
-      course: course,
-      status: status
+      course: courses,
+      status: status,
+      lastUpdate: isAdvanceEnabled ? lastUpdate : null,
+      requirements: requirements,
     };
 
-    // Simpan dalam sessionStorage
     sessionStorage.setItem('newBatch', JSON.stringify(newBatch));
-
-    // Navigate ke Batch tanpa guna state
     navigate('/dashboard/batch');
   };
 
-    return (
-        <Main>
-            <div className="container-fluid py-4">
-                <div className="row">
-                    <div className="col-12">
-                        <div className="card">
-                            <div className>
-                                <div className="p-3">
-                                    <h6 className="mb-3">Setup Project Requirement</h6>
+  return (
+    <Main>
+      <div className="container-fluid py-4">
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="p-3">
+                <h6 className="mb-3">Setup Project Requirement</h6>
 
-                                    <form onSubmit={handleSubmit}>
-                                        {/* <!-- Batch Name and Course Name --> */}
-                                        <div className="row mb-3">
-                                            <div className="col-md-6">
-                                                <label className="form-label">Batch Name</label>
-                                                <input type="text" className="form-control" placeholder="Enter batch name"
-                                                    value={batchName}
-                                                    onChange={(e) => setBatchName(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label className="form-label">Course Name</label>
-                                                <select className="form-select"
-                                                    value={course}
-                                                    onChange={(e) => setCourse(e.target.value)}
-                                                >
-                                                    <option>Select course</option>
-                                                    <option value="IT">IT</option>
-                                                    <option value="Meka">Meka</option>
-                                                    <option value="Puan">Puan</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {/* <!-- Advance Optional --> */}
-                                        <div className="mb-3 d-flex align-items-center">
-                                            <label className="form-label me-2">Advance (Optional)</label>
-                                            <input type="checkbox" className="form-check-input me-2" id="advanceToggle" />
-                                            <label htmlFor="advanceToggle" className="form-check-label">Enable</label>
-                                        </div>
-
-                                        {/* <!-- Date Last Update --> */}
-                                        <div className="mb-3">
-                                            <label className="form-label">Date - Last Update</label>
-                                            <input type="date" className="form-control" />
-                                        </div>
-
-                                        {/* <!-- Project Requirement Fields --> */}
-                                        <div id="project-requirements">
-
-                                            {/* Project Name */}
-                                            <div className="row mb-2 align-items-center">
-                                                <div className="col-md-4">
-                                                    <input type="text" className="form-control" value="Project name" readOnly />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <input type="text" className="form-control" value="text" readOnly />
-                                                </div>
-                                                <div className="col-md-1 text-center">
-                                                    <input className="form-check-input" type="checkbox" defaultChecked />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <label>Required</label>
-                                                </div>
-                                                <div className="col-md-1">
-                                                    <button className="btn btn-outline-danger btn-sm">−</button>
-                                                </div>
-                                            </div>
-
-                                            {/* Slide */}
-                                            <div className="row mb-2 align-items-center">
-                                                <div className="col-md-4">
-                                                    <input type="text" className="form-control" value="Slide" readOnly />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <input type="text" className="form-control" value="file" readOnly />
-                                                </div>
-                                                <div className="col-md-1 text-center">
-                                                    <input className="form-check-input" type="checkbox" defaultChecked />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <label>Required</label>
-                                                </div>
-                                                <div className="col-md-1">
-                                                    <button className="btn btn-outline-danger btn-sm">−</button>
-                                                </div>
-                                            </div>
-
-                                            {/* Poster */}
-                                            <div className="row mb-2 align-items-center">
-                                                <div className="col-md-4">
-                                                    <input type="text" className="form-control" value="Poster" readOnly />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <input type="text" className="form-control" value="file" readOnly />
-                                                </div>
-                                                <div className="col-md-1 text-center">
-                                                    <input className="form-check-input" type="checkbox" defaultChecked />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <label>Required</label>
-                                                </div>
-                                                <div className="col-md-1">
-                                                    <button className="btn btn-outline-danger btn-sm">−</button>
-                                                </div>
-                                            </div>
-
-                                            {/* Penyelia */}
-                                            <div className="row mb-3 align-items-center">
-                                                <div className="col-md-4">
-                                                    <input type="text" className="form-control" value="Penyelia" readOnly />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <input type="text" className="form-control" value="text" readOnly />
-                                                </div>
-                                                <div className="col-md-1 text-center">
-                                                    <input className="form-check-input" type="checkbox" defaultChecked />
-                                                </div>
-                                                <div className="col-md-2">
-                                                    <label>Required</label>
-                                                </div>
-                                                <div className="col-md-1">
-                                                    <button className="btn btn-outline-danger btn-sm">−</button>
-                                                </div>
-                                            </div>
-
-                                            {/* Add new requirement row */}
-                                            <div className="text-end mb-3">
-                                                <button type="button" className="btn btn-outline-primary btn-sm">＋</button>
-                                            </div>
-                                        </div>
-
-                                        {/* Action Buttons */}
-                                        <div className="d-flex justify-content-between">
-                                            <button type="reset" className="btn btn-secondary">Reset Default</button>
-                                            <div>
-                                                <button type="button" className="btn btn-outline-light me-2">Preview</button>
-                                                <button type="submit" className="btn btn-primary">Save</button>
-                                            </div>
-                                        </div>
-
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                <form onSubmit={handleSubmit}>
+                  {/* Batch Name and Course Name */}
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label">Batch Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter batch name"
+                        value={batchName}
+                        onChange={(e) => setBatchName(e.target.value)}
+                      />
                     </div>
-                </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Course Name</label>
+                      <Select
+                        isMulti
+                        options={courseOptions}
+                        value={courseOptions.filter(opt => courses.includes(opt.value))}
+                        onChange={(selected) => setCourses(selected.map(item => item.value))}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Advance Settings */} 
+                  <div className="mb-3">
+                    <div
+                      className="d-flex justify-content-between align-items-center bg-light p-2 rounded"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setShowAdvance(!showAdvance)}
+                    >
+                      <strong>Advance Settings (Optional)</strong>
+                      <span>{showAdvance ? '−' : '+'}</span>
+                    </div>
+
+                    {showAdvance && (
+                      <div className="mt-3 px-2">
+                        {/* Toggle Enable */}
+                        <div className="form-check form-switch mb-2">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="advanceToggle"
+                            checked={isAdvanceEnabled}
+                            onChange={(e) => setIsAdvanceEnabled(e.target.checked)}
+                          />
+                          <label className="form-check-label" htmlFor="advanceToggle">
+                            {isAdvanceEnabled ? 'Enabled' : 'Disabled'}
+                          </label>
+                        </div>
+
+                        {/* Date input shown only if toggle enabled */}
+                        {isAdvanceEnabled && (
+                          <div className="mb-3">
+                            <label className="form-label">Date - Last Update</label>
+                            <input
+                              type="date"
+                              className="form-control form-control-sm w-20"
+                              value={lastUpdate}
+                              onChange={(e) => setLastUpdate(e.target.value)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Requirement Fields */}
+                  <div id="project-requirements" className="mb-4 ms-1">
+                    {requirements.length === 0 ? (
+                      <>
+                        <p className="text-muted">No requirement fields available</p>
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={handleAddRequirement}
+                        >
+                          ＋ Add Requirement
+                        </button>
+                      </>
+                    ) : (
+                      requirements.map((req, index) => (
+                        <div key={index} className="row mb-2 align-items-center">
+                          <div className="col-md-4">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Requirement name"
+                              value={req.name}
+                              onChange={(e) => handleRequirementChange(index, 'name', e.target.value)}
+                            />
+                          </div>
+                          <div className="col-md-2">
+                            <select
+                              className="form-select"
+                              value={req.type}
+                              onChange={(e) => handleRequirementChange(index, 'type', e.target.value)}
+                            >
+                              <option value="text">text</option>
+                              <option value="file">file</option>
+                            </select>
+                          </div>
+                          <div className="col-md-2">
+                            <div className="form-check form-switch">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id={`requiredToggle-${index}`}
+                                checked={req.required}
+                                onChange={(e) => handleRequirementChange(index, 'required', e.target.checked)}
+                              />
+                              <label className="form-check-label" htmlFor={`requiredToggle-${index}`}>
+                                {req.required ? 'Required' : 'Optional'}
+                              </label>
+                            </div>
+                          </div>
+                          <div className="col-md-2 d-flex gap-2">
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => handleRemoveRequirement(index)}
+                            >
+                              −
+                            </button>
+                            {index === requirements.length - 1 && (
+                              <button
+                                type="button"
+                                className="btn btn-outline-primary btn-sm"
+                                onClick={handleAddRequirement}
+                              >
+                                ＋
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="d-flex justify-content-end">
+                    <div>
+                      <button type="submit" className="btn btn-primary">Save</button>
+                    </div>
+                  </div>
+                </form>
+
+              </div>
             </div>
-        </Main>
-    )
+          </div>
+        </div>
+      </div>
+    </Main>
+  );
 }
 
-export default SetupBatch
+export default SetupBatch;
