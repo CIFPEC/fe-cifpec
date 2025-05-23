@@ -1,79 +1,136 @@
 body {
-    background-color: #fff;
-    color: #fff;
-    min-height: 100vh;
-  }
-  .form-box {
-    width: 500px;
-    margin: auto;
-    background-color: transparent;
-    padding: 30px;
-    border-radius: 10px;
-  }
-  
-  .glass-box {
-    background-color: rgba(255, 255, 255, 0.1); 
-    backdrop-filter: blur(15px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    color: #fff;
-  }
-  
-  .form-login {
-    background-color: transparent !important;
-    border: 1px solid purple !important;
-    color: #1e1e1e !important;
-    border-radius: 20px !important;
-    padding:8px 12px !important;
-    font-size:1rem !important;
-  }
-  .form-login:focus {
-    color: #fff !important;
-    border-color: purple !important;
-    box-shadow: none !important;
-  }
-  .btn-switch {
-    background-color:white !important;
-    color:black !important;
-    border-radius: 20px !important;
-    border:none !important;
-    transition:background-color .2s ease !important;
-  }
-  .btn-switch.active {
-    background-color:#ddd !important;
-  }
-  .btn-purple {
-    background-color: purple !important;
-    border: none !important;
-    border-radius: 20px !important;
-  }
-  .input-check input:checked {
-    background-color: purple !important;
-    border-color: purple !important;
-  }
-  .input-check label{
-    color:white;
-  }
-  .link-light:hover {
-    color: purple !important;
-  }
-  .form-login::placeholder {
-    color: white !important;
-  }
-  .auth{
-    background-image: url(./../img/freepik__upload__58996.png);
-    background-repeat: no-repeat;
-    background-size: cover;
-    position:fixed;
-    top:0;
-    right:0;
-    left:0;
-    bottom:0;
-    display:flex;
-  }
-  
-  .auth-logo{
-    width: 100%;
-  }
-  .auth-logo img{
-    width: 200px;
-  }
+  background: #000;
+  color: #000;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-box {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 30px;
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  color: #000;
+  position: relative;
+  z-index: 2;
+}
+
+.glass-box {
+  background-color: transparent;
+}
+
+.form-login {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid #6a11cb !important;
+  color: #000 !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  font-size: 1rem !important;
+  backdrop-filter: blur(5px);
+}
+
+.form-login:focus {
+  color: #000 !important;
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: #2575fc !important;
+  box-shadow: 0 0 0 2px rgba(101, 117, 255, 0.2);
+  outline: none;
+}
+
+.btn-switch {
+  background-color: #fff !important;
+  color: #333 !important;
+  border-radius: 20px !important;
+  border: none !important;
+  font-weight: bold;
+  transition: background-color 0.2s ease !important;
+}
+
+.btn-switch.active {
+  background-color: #f1f1f1 !important;
+}
+
+.btn-purple {
+  background-color: #6a11cb !important;
+  color: #fff;
+  border: none !important;
+  border-radius: 20px !important;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-purple:hover {
+  background-color: #5012a7 !important;
+}
+
+.input-check input:checked {
+  background-color: #6a11cb !important;
+  border-color: #6a11cb !important;
+}
+
+.input-check label {
+  color: black;
+}
+
+.link-light:hover {
+  color: #6a11cb !important;
+}
+
+.form-login::placeholder {
+  color: #666 !important;
+}
+
+.auth {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('./../img/background.jpg') center center / cover no-repeat;
+}
+
+.auth::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(106, 17, 203, 0.6), rgba(37, 117, 252, 0.6));
+  z-index: 1;
+}
+
+.auth-logo {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-logo img {
+  width: 160px;
+}
+
+.form-login option {
+  color: black !important;
+  background-color: white;
+}
+
+.invalid-feedback,
+.error-message {
+  color: #e57373 !important;
+  font-size: 0.9rem;
+  margin-top: 4px;
+  font-weight: 500;
+}

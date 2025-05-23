@@ -1,4 +1,3 @@
-// src/pages/Auth.jsx 
 import React, { useState } from 'react';
 import "./../assets/css/login.css";
 import Logo from "./../assets/img/Cifpec-Logo.png";
@@ -7,17 +6,16 @@ import { useNavigate } from 'react-router-dom';
 
 function Auth() {
   const [tabs, setTabs] = useState({
-    login: {
-      status: "active",
-      display: "d-block"
-    },
-    register: {
-      status: "",
-      display: "d-none"
-    }
+    login: { status: "active", display: "d-block" },
+    register: { status: "", display: "d-none" }
   });
 
-  const [forms, setForms] = useState({
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: ""
+  });
+
+  const [registerForm, setRegisterForm] = useState({
     email: "",
     password: "",
     retypePassword: "",
@@ -25,129 +23,192 @@ function Auth() {
     course: ""
   });
 
+  const [loginErrors, setLoginErrors] = useState({});
+  const [registerErrors, setRegisterErrors] = useState({});
   const [verificationCode, setVerificationCode] = useState("");
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const navigate = useNavigate();
 
-  const handleInput = (e) => {
+  const handleLoginInput = (e) => {
     const { name, value } = e.target;
-    setForms({
-      ...forms,
-      [name]: value
-    });
+    setLoginForm({ ...loginForm, [name]: value });
+  };
+
+  const handleRegisterInput = (e) => {
+    const { name, value } = e.target;
+    setRegisterForm({ ...registerForm, [name]: value });
   };
 
   const showLogin = () => {
     setTabs({
-      login: {
-        status: "active",
-        display: "d-block"
-      },
-      register: {
-        status: "",
-        display: "d-none"
-      }
+      login: { status: "active", display: "d-block" },
+      register: { status: "", display: "d-none" }
     });
-    setForms({
-      email: "",
-      password: "",
-      retypePassword: "",
-      role: "",
-      course: ""
-    });
+    setLoginForm({ email: "", password: "" });
+    setRegisterErrors({});
+    setLoginErrors({});
   };
 
   const showRegister = () => {
     setTabs({
-      login: {
-        status: "",
-        display: "d-none"
-      },
-      register: {
-        status: "active",
-        display: "d-block"
-      }
+      login: { status: "", display: "d-none" },
+      register: { status: "active", display: "d-block" }
     });
-    setForms({
-      email: "",
-      password: "",
-      retypePassword: "",
-      role: "",
-      course: ""
-    });
+    setRegisterForm({ email: "", password: "", retypePassword: "", role: "", course: "" });
+    setRegisterErrors({});
+    setLoginErrors({});
   };
 
-  const generateVerificationCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
+  const generateVerificationCode = () => Math.floor(100000 + Math.random() * 900000).toString();
 
   const onRegister = (e) => {
     e.preventDefault();
-    if (forms.email && forms.password === forms.retypePassword) {
-      const code = generateVerificationCode();
-      setVerificationCode(code);
-      setShowVerificationModal(true);
-      console.log(`Verification code sent to ${forms.email}: ${code}`);
-      setTimeout(() => {
-        navigate('/verifyemail', { state: { email: forms.email, code: code } });
-      }, 10000);
-    } else {
-      alert("Passwords do not match or fields are empty");
+    const newErrors = {};
+
+    if (!registerForm.email.includes("@")) newErrors.email = "Email tidak sah.";
+    if (registerForm.password.length < 6) newErrors.password = "Password mesti sekurang-kurangnya 6 aksara.";
+    if (registerForm.password !== registerForm.retypePassword) newErrors.retypePassword = "Password tidak sepadan.";
+    if (!registerForm.role) newErrors.role = "Sila pilih peranan.";
+    if (!registerForm.course) newErrors.course = "Sila pilih kursus.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setRegisterErrors(newErrors);
+      return;
     }
+
+    setRegisterErrors({});
+    const code = generateVerificationCode();
+    setVerificationCode(code);
+    setShowVerificationModal(true);
+    setTimeout(() => {
+      navigate('/verifyemail', { state: { email: registerForm.email, code: code } });
+    }, 10000);
+  };
+
+  const onLogin = (e) => {
+    e.preventDefault();
+    const newLoginErrors = {};
+
+    if (!loginForm.email) newLoginErrors.email = "Sila isi emel anda.";
+    if (!loginForm.password) newLoginErrors.password = "Sila isi kata laluan.";
+
+    if (Object.keys(newLoginErrors).length > 0) {
+      setLoginErrors(newLoginErrors);
+      return;
+    }
+
+    setLoginErrors({});
+    console.log("Login berjaya (simulasi):", loginForm);
   };
 
   return (
     <div className="auth">
       <div className="form-box glass-box">
-        <div className="d-flex mb-4">
-          <Button className={`btn-switch w-50 me-3 ${tabs.login.status}`} onClick={showLogin}>
-            LOGIN
-          </Button>
-          <Button className={`btn-switch w-50 ${tabs.register.status}`} onClick={showRegister}>
-            REGISTER
-          </Button>
+        <div className="auth-logo">
+          <Image src={Logo} alt="CIFPEC Logo" />
         </div>
 
-        {/* Login Form  */}
-        <Form className={tabs.login.display}>
-          <LogoImage />
+        <div className="d-flex mb-4">
+          <Button className={`btn-switch w-50 me-3 ${tabs.login.status}`} onClick={showLogin}>LOGIN</Button>
+          <Button className={`btn-switch w-50 ${tabs.register.status}`} onClick={showRegister}>REGISTER</Button>
+        </div>
+
+        {/* Login Form */}
+        <Form className={tabs.login.display} onSubmit={onLogin}>
           <div className="mb-3">
-            <Form.Control type="email" placeholder="Email or username" name="email" className='form-login' value={forms.email} onChange={handleInput} />
+            <Form.Control
+              type="email"
+              placeholder="Email or username"
+              name="email"
+              className="form-login"
+              value={loginForm.email}
+              onChange={handleLoginInput}
+              style={loginErrors.email ? { borderColor: 'red' } : {}}
+            />
+            {loginErrors.email && <div className="error-message">{loginErrors.email}</div>}
           </div>
           <div className="mb-3">
-            <Form.Control type="password" placeholder="Password" name="password" className='form-login' value={forms.password} onChange={handleInput} />
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              name="password"
+              className="form-login"
+              value={loginForm.password}
+              onChange={handleLoginInput}
+              style={loginErrors.password ? { borderColor: 'red' } : {}}
+            />
+            {loginErrors.password && <div className="error-message">{loginErrors.password}</div>}
           </div>
-          <Button className="w-100 py-2 btn-purple" onClick={(e) => console.log(forms)}>
-            SIGN IN
-          </Button>
+          <Button type="submit" className="w-100 py-2 btn-purple">SIGN IN</Button>
         </Form>
 
-        {/* Register Form  */}
+        {/* Register Form */}
         <Form className={tabs.register.display} onSubmit={onRegister}>
-          <LogoImage />
           <div className="mb-3">
-            <Form.Control type="email" placeholder="Email" name="email" className='form-login' value={forms.email} onChange={handleInput} />
-          </div>
-          <div className="mb-3">
-            <Form.Control type="password" placeholder="Password" name="password" className='form-login' value={forms.password} onChange={handleInput} />
-          </div>
-          <div className="mb-3">
-            <Form.Control type="password" placeholder="Confirm Password" name="retypePassword" className='form-login' value={forms.retypePassword} onChange={handleInput} />
+            <Form.Control
+              type="email"
+              placeholder="Email"
+              name="email"
+              className="form-login"
+              value={registerForm.email}
+              onChange={handleRegisterInput}
+              style={registerErrors.email ? { borderColor: 'red' } : {}}
+            />
+            {registerErrors.email && <div className="error-message">{registerErrors.email}</div>}
           </div>
 
-          {/* Role Dropdown */}
           <div className="mb-3">
-            <Form.Select name="role" value={forms.role} onChange={handleInput} className="form-login text-white bg-dark" required>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              name="password"
+              className="form-login"
+              value={registerForm.password}
+              onChange={handleRegisterInput}
+              style={registerErrors.password ? { borderColor: 'red' } : {}}
+            />
+            {registerErrors.password && <div className="error-message">{registerErrors.password}</div>}
+          </div>
+
+          <div className="mb-3">
+            <Form.Control
+              type="password"
+              placeholder="Confirm Password"
+              name="retypePassword"
+              className="form-login"
+              value={registerForm.retypePassword}
+              onChange={handleRegisterInput}
+              style={registerErrors.retypePassword ? { borderColor: 'red' } : {}}
+            />
+            {registerErrors.retypePassword && <div className="error-message">{registerErrors.retypePassword}</div>}
+          </div>
+
+          <div className="mb-3">
+            <Form.Select
+              name="role"
+              value={registerForm.role}
+              onChange={handleRegisterInput}
+              className="form-login"
+              required
+              style={registerErrors.role ? { borderColor: 'red' } : {}}
+            >
               <option value="">-- Pilih Peranan --</option>
               <option value="Pelajar">Pelajar</option>
               <option value="Penyelia">Penyelia</option>
               <option value="Penyelaras">Penyelaras</option>
             </Form.Select>
+            {registerErrors.role && <div className="error-message">{registerErrors.role}</div>}
           </div>
 
-          {/* Course Dropdown */}
           <div className="mb-3">
-            <Form.Select name="course" value={forms.course} onChange={handleInput} className="form-login text-white bg-dark" required>
+            <Form.Select
+              name="course"
+              value={registerForm.course}
+              onChange={handleRegisterInput}
+              className="form-login"
+              required
+              style={registerErrors.course ? { borderColor: 'red' } : {}}
+            >
               <option value="">-- Pilih Kursus --</option>
               <option value="Komputer">Komputer</option>
               <option value="Telekomunikasi">Telekomunikasi</option>
@@ -155,18 +216,15 @@ function Auth() {
               <option value="Mekatronik">Mekatronik</option>
               <option value="Automotif">Automotif</option>
             </Form.Select>
+            {registerErrors.course && <div className="error-message">{registerErrors.course}</div>}
           </div>
 
-          <Button type="submit" className="w-100 py-2 btn-purple">
-            SIGN UP
-          </Button>
+          <Button type="submit" className="w-100 py-2 btn-purple">SIGN UP</Button>
         </Form>
 
-        {/* Verification Code Modal */}
+        {/* Modal */}
         <Modal show={showVerificationModal} onHide={() => setShowVerificationModal(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Verify Your Email</Modal.Title>
-          </Modal.Header>
+          <Modal.Header closeButton><Modal.Title>Verify Your Email</Modal.Title></Modal.Header>
           <Modal.Body>
             <p>Please check your email for the verification code.</p>
             <h5 className="text-center">Code: {verificationCode}</h5>
@@ -176,14 +234,6 @@ function Auth() {
           </Modal.Footer>
         </Modal>
       </div>
-    </div>
-  );
-}
-
-function LogoImage() {
-  return (
-    <div className="text-center mb-3 auth-logo">
-      <Image src={Logo} />
     </div>
   );
 }
