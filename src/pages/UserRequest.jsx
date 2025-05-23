@@ -1,12 +1,41 @@
-import React from 'react'
-import Main from '../components/Main'
+import React, { useState, useEffect } from 'react';
+import Main from '../components/Main';
 
 function UserRequest() {
+  const [userRequests, setUserRequests] = useState([]);
 
-    
+  useEffect(() => {
+    // Default satu data contoh
+    setUserRequests([
+      {
+        id: 1,
+        email: 'Ali@gmail.com',
+        status: 'Dalam Proses',
+        department: 'Komputer',
+        level: 'Penyelia',
+        action: ''
+      }
+    ]);
+  }, []);
+
+  const handleSetuju = (id) => {
+    setUserRequests(prev =>
+      prev.map(user =>
+        user.id === id ? { ...user, action: 'Selesai' } : user
+      )
+    );
+  };
+
+  const handleTolak = (id) => {
+    setUserRequests(prev =>
+      prev.map(user =>
+        user.id === id ? { ...user, action: 'Menolak' } : user
+      )
+    );
+  };
+
   return (
-   <Main>
-    {/* <!-- Tajuk --> */}
+    <Main>
       <div className="card p-4 shadow-sm mt-5 ms-3 w-75">
         <h6 className="fw-bold mb-3">Permintaan User</h6>
 
@@ -22,49 +51,46 @@ function UserRequest() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Ali@gmail.com</td>
-                <td>Diterima</td>
-                <td>Komputer</td>
-                <td>Admin</td>
-                <td className="text-success fw-semibold">Selesai</td>
-              </tr>
-              <tr>
-                <td>Siti@gmail.com</td>
-                <td>Dalam Proses</td>
-                <td>Meka</td>
-                <td>Penyelia</td>
-                <td>
-                  <button className="btn btn-success btn-sm me-1 mt-3">
-                    Setuju
-                  </button>
-                  <button className="btn btn-danger btn-sm mt-3">Tolak</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Jamal@gmail.com</td>
-                <td>Ditolak</td>
-                <td>Automotif</td>
-                <td>Penyelaras</td>
-                <td className="text-success fw-semibold">Selesai</td>
-              </tr>
-              <tr>
-                <td>Maimun@gmail.com</td>
-                <td>Dalam Proses</td>
-                <td>Automotif</td>
-                <td>Penyelaras</td>
-                <td>
-                  <button className="btn btn-success btn-sm me-1 mt-3">
-                    Setuju
-                  </button>
-                  <button className="btn btn-danger btn-sm mt-3">Tolak</button>
-                </td>
-              </tr>
+              {userRequests.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-muted">Tiada user tersedia</td>
+                </tr>
+              ) : (
+                userRequests.map(user => (
+                  <tr key={user.id}>
+                    <td>{user.email}</td>
+                    <td>{user.status}</td>
+                    <td>{user.department}</td>
+                    <td>{user.level}</td>
+                    <td>
+                      {user.action === 'Selesai' || user.action === 'Menolak' ? (
+                        <span className={`fw-semibold ${user.action === 'Selesai' ? 'text-success' : 'text-danger'}`}>
+                          {user.action}
+                        </span>
+                      ) : (
+                        <>
+                          <button
+                            className="btn btn-success btn-sm me-1 mt-2"
+                            onClick={() => handleSetuju(user.id)}
+                          >
+                            Setuju
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm mt-2"
+                            onClick={() => handleTolak(user.id)}
+                          >
+                            Tolak
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* <!-- Pagination --> */}
         <nav className="d-flex justify-content-center mt-3">
           <ul className="pagination pagination-sm mb-0">
             <li className="page-item disabled">
@@ -76,9 +102,8 @@ function UserRequest() {
           </ul>
         </nav>
       </div>
-
-   </Main>
-  )
+    </Main>
+  );
 }
 
-export default UserRequest
+export default UserRequest;

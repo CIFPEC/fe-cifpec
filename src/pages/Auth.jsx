@@ -1,29 +1,33 @@
-// src/pages/Auth.jsx
+// src/pages/Auth.jsx 
 import React, { useState } from 'react';
 import "./../assets/css/login.css";
 import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Form, Button, Image, Modal } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Add this line
+import { useNavigate } from 'react-router-dom';
 
 function Auth() {
   const [tabs, setTabs] = useState({
     login: {
-      status:"active",
-      display:"d-block"
+      status: "active",
+      display: "d-block"
     },
     register: {
-      status:"",
-      display:"d-none"
+      status: "",
+      display: "d-none"
     }
   });
+
   const [forms, setForms] = useState({
     email: "",
     password: "",
-    retypePassword: ""
+    retypePassword: "",
+    role: "",
+    course: ""
   });
+
   const [verificationCode, setVerificationCode] = useState("");
   const [showVerificationModal, setShowVerificationModal] = useState(false);
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate();
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -36,36 +40,40 @@ function Auth() {
   const showLogin = () => {
     setTabs({
       login: {
-        status:"active",
-        display:"d-block"
+        status: "active",
+        display: "d-block"
       },
       register: {
-        status:"",
-        display:"d-none"
+        status: "",
+        display: "d-none"
       }
     });
     setForms({
       email: "",
       password: "",
-      retypePassword: ""
+      retypePassword: "",
+      role: "",
+      course: ""
     });
   };
 
   const showRegister = () => {
     setTabs({
       login: {
-        status:"",
-        display:"d-none"
+        status: "",
+        display: "d-none"
       },
       register: {
-        status:"active",
-        display:"d-block"
+        status: "active",
+        display: "d-block"
       }
     });
     setForms({
       email: "",
       password: "",
-      retypePassword: ""
+      retypePassword: "",
+      role: "",
+      course: ""
     });
   };
 
@@ -80,8 +88,6 @@ function Auth() {
       setVerificationCode(code);
       setShowVerificationModal(true);
       console.log(`Verification code sent to ${forms.email}: ${code}`);
-
-      // Redirect to verify email page
       setTimeout(() => {
         navigate('/verifyemail', { state: { email: forms.email, code: code } });
       }, 10000);
@@ -101,6 +107,7 @@ function Auth() {
             REGISTER
           </Button>
         </div>
+
         {/* Login Form  */}
         <Form className={tabs.login.display}>
           <LogoImage />
@@ -127,6 +134,29 @@ function Auth() {
           <div className="mb-3">
             <Form.Control type="password" placeholder="Confirm Password" name="retypePassword" className='form-login' value={forms.retypePassword} onChange={handleInput} />
           </div>
+
+          {/* Role Dropdown */}
+          <div className="mb-3">
+            <Form.Select name="role" value={forms.role} onChange={handleInput} className="form-login text-white bg-dark" required>
+              <option value="">-- Pilih Peranan --</option>
+              <option value="Pelajar">Pelajar</option>
+              <option value="Penyelia">Penyelia</option>
+              <option value="Penyelaras">Penyelaras</option>
+            </Form.Select>
+          </div>
+
+          {/* Course Dropdown */}
+          <div className="mb-3">
+            <Form.Select name="course" value={forms.course} onChange={handleInput} className="form-login text-white bg-dark" required>
+              <option value="">-- Pilih Kursus --</option>
+              <option value="Komputer">Komputer</option>
+              <option value="Telekomunikasi">Telekomunikasi</option>
+              <option value="Pembuatan">Pembuatan</option>
+              <option value="Mekatronik">Mekatronik</option>
+              <option value="Automotif">Automotif</option>
+            </Form.Select>
+          </div>
+
           <Button type="submit" className="w-100 py-2 btn-purple">
             SIGN UP
           </Button>
@@ -150,7 +180,7 @@ function Auth() {
   );
 }
 
-function LogoImage(){
+function LogoImage() {
   return (
     <div className="text-center mb-3 auth-logo">
       <Image src={Logo} />
