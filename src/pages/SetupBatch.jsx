@@ -12,7 +12,6 @@ function SetupBatch() {
   const [isAdvanceEnabled, setIsAdvanceEnabled] = useState(false);
   const [lastUpdate, setLastUpdate] = useState('');
   const [showAdvance, setShowAdvance] = useState(false);
-
   const [requirements, setRequirements] = useState([]);
 
   const courseOptions = [
@@ -65,7 +64,6 @@ function SetupBatch() {
             <div className="card">
               <div className="p-3">
                 <h6 className="mb-3">Setup Project Requirement</h6>
-
                 <form onSubmit={handleSubmit}>
                   {/* Batch Name and Course Name */}
                   <div className="row mb-3">
@@ -90,7 +88,7 @@ function SetupBatch() {
                     </div>
                   </div>
 
-                  {/* Advance Settings */} 
+                  {/* Advance Settings */}
                   <div className="mb-3">
                     <div
                       className="d-flex justify-content-between align-items-center bg-light p-2 rounded"
@@ -103,7 +101,6 @@ function SetupBatch() {
 
                     {showAdvance && (
                       <div className="mt-3 px-2">
-                        {/* Toggle Enable */}
                         <div className="form-check form-switch mb-2">
                           <input
                             className="form-check-input"
@@ -116,8 +113,6 @@ function SetupBatch() {
                             {isAdvanceEnabled ? 'Enabled' : 'Disabled'}
                           </label>
                         </div>
-
-                        {/* Date input shown only if toggle enabled */}
                         {isAdvanceEnabled && (
                           <div className="mb-3">
                             <label className="form-label">Date - Last Update</label>
@@ -212,7 +207,6 @@ function SetupBatch() {
                     </div>
                   </div>
                 </form>
-
               </div>
             </div>
           </div>
