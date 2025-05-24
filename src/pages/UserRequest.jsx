@@ -5,7 +5,7 @@ function UserRequest() {
   const [userRequests, setUserRequests] = useState([]);
 
   useEffect(() => {
-    // Default satu data contoh
+    // Contoh data permintaan user
     setUserRequests([
       {
         id: 1,
@@ -68,20 +68,20 @@ function UserRequest() {
                           {user.action}
                         </span>
                       ) : (
-                        <>
+                        <div className="d-flex justify-content-center gap-2 flex-md-row flex-column">
                           <button
-                            className="btn btn-success btn-sm me-1 mt-2"
+                            className="btn btn-success btn-sm mt-3"
                             onClick={() => handleSetuju(user.id)}
                           >
                             Setuju
                           </button>
                           <button
-                            className="btn btn-danger btn-sm mt-2"
+                            className="btn btn-danger btn-sm mt-3"
                             onClick={() => handleTolak(user.id)}
                           >
                             Tolak
                           </button>
-                        </>
+                        </div>
                       )}
                     </td>
                   </tr>

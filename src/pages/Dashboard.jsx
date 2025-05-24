@@ -41,19 +41,17 @@ function Dashboard() {
     <Main>
       <div className="container-fluid py-2">
         <div className="row">
-          <div className="ms-3">
-            <h3 className="mb-0 h4 font-weight-bolder">Dashboard</h3>
+          <div className="col-12">
+            <h3 className="mb-3 h4 font-weight-bolder">Dashboard</h3>
           </div>
 
-          {/* Kad Info */}
-          {[
-            { label: 'Jumlah Pelajar', value: 100, color: 'bg-gradient-pink' },
+          {[{ label: 'Jumlah Pelajar', value: 100, color: 'bg-gradient-pink' },
             { label: 'Jumlah Projek', value: 59, color: 'bg-gradient-success' },
             { label: 'Jumlah Slide', value: 100, color: 'bg-gradient-warning' },
             { label: 'Jumlah Poster', value: 38, color: 'bg-gradient-danger' },
           ].map((item, idx) => (
-            <div key={idx} className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-              <div className="card">
+            <div key={idx} className="col-12 col-sm-6 col-xl-3 mb-4">
+              <div className="card h-100">
                 <div className="card-header p-2 ps-3">
                   <div className="d-flex justify-content-between">
                     <div>
@@ -71,10 +69,9 @@ function Dashboard() {
           ))}
         </div>
 
-        <div className="row">
-          {/* Carta */}
-          <div className="col-md-8 mt-3">
-            <div className="bg-white p-4 shadow-sm rounded h-100 w-100">
+        <div className="row mt-4">
+          <div className="col-12 col-lg-8 mb-4">
+            <div className="bg-white p-4 shadow-sm rounded h-100">
               <h5 className="mb-3">Gambaran keseluruhan kursus</h5>
               <div style={{ height: '300px', position: 'relative' }}>
                 <canvas id="courseChart"></canvas>
@@ -82,13 +79,12 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* User Baru */}
-          <div className="col-md-4 w-30 mt-3">
-            <div className="bg-white p-4 shadow-sm rounded h-100 ms-3">
+          <div className="col-12 col-lg-4 mb-4">
+            <div className="bg-white p-4 shadow-sm rounded h-100">
               <h5 className="mb-4">User Baru</h5>
               <div className="d-flex fw-bold border-bottom pb-2 mb-3">
-                <div className="w-25 ms-1">Profil</div>
-                <div className="w-75 ms-5">Name</div>
+                <div className="w-25">Profil</div>
+                <div className="w-75">Name</div>
               </div>
               <ul className="list-unstyled">
                 {["Sarah Khalisa", "Mohamad Haikal", "Amelia Husna", "Jamaluddin Ahmad"].map((user, idx) => (
@@ -96,7 +92,7 @@ function Dashboard() {
                     <div className="w-25">
                       <div className="bg-secondary rounded-circle" style={{ width: 30, height: 30 }}></div>
                     </div>
-                    <div className="w-75 ms-5">{user}</div>
+                    <div className="w-75">{user}</div>
                   </li>
                 ))}
               </ul>

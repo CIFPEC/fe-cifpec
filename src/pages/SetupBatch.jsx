@@ -59,13 +59,12 @@ function SetupBatch() {
   return (
     <Main>
       <div className="container-fluid py-4">
-        <div className="row">
-          <div className="col-12">
+        <div className="row justify-content-center">
+          <div className="col-12 col-lg-10">
             <div className="card">
               <div className="p-3">
                 <h6 className="mb-3">Setup Project Requirement</h6>
                 <form onSubmit={handleSubmit}>
-                  {/* Batch Name and Course Name */}
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label className="form-label">Batch Name</label>
@@ -88,7 +87,6 @@ function SetupBatch() {
                     </div>
                   </div>
 
-                  {/* Advance Settings */}
                   <div className="mb-3">
                     <div
                       className="d-flex justify-content-between align-items-center bg-light p-2 rounded"
@@ -118,7 +116,7 @@ function SetupBatch() {
                             <label className="form-label">Date - Last Update</label>
                             <input
                               type="date"
-                              className="form-control form-control-sm w-20"
+                              className="form-control form-control-sm w-100 w-md-25"
                               value={lastUpdate}
                               onChange={(e) => setLastUpdate(e.target.value)}
                             />
@@ -128,7 +126,6 @@ function SetupBatch() {
                     )}
                   </div>
 
-                  {/* Requirement Fields */}
                   <div id="project-requirements" className="mb-4 ms-1">
                     {requirements.length === 0 ? (
                       <>
@@ -200,7 +197,6 @@ function SetupBatch() {
                     )}
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="d-flex justify-content-end">
                     <div>
                       <button type="submit" className="btn btn-primary">Save</button>

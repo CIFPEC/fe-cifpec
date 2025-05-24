@@ -16,24 +16,16 @@ function Batch() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewBatch, setViewBatch] = useState(null);
 
-  // Dapatkan data dari SetupBatch jika ada
   useEffect(() => {
     const batchString = sessionStorage.getItem('newBatch');
-
     if (batchString) {
       const newBatch = JSON.parse(batchString);
-
       const isDuplicate = batches.some(
-        (b) =>
-          b.name === newBatch.name &&
-          b.course === newBatch.course &&
-          b.status === newBatch.status
+        (b) => b.name === newBatch.name && b.course === newBatch.course && b.status === newBatch.status
       );
-
       if (!isDuplicate) {
         setBatches((prev) => [...prev, newBatch]);
       }
-
       sessionStorage.removeItem('newBatch');
     }
   }, [batches]);
@@ -85,14 +77,9 @@ function Batch() {
               <div className="card-body px-0 pt-0 pb-2">
                 <div className="tab-content" id="batchTabContent">
                   <div className="tab-pane fade show active" id="batch" role="tabpanel">
-                    <div className="d-flex justify-content-between align-items-center px-3 pt-3">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-3 pt-3 gap-2">
                       <h6>Batch Lists</h6>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => navigate('/dashboard/batch/new')}
-                      >
-                        Create New
-                      </button>
+                      <button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/batch/new')}>Create New</button>
                     </div>
 
                     <div className="table-responsive p-3">
@@ -116,31 +103,17 @@ function Batch() {
                                 <td>{batch.name}</td>
                                 <td>{batch.course}</td>
                                 <td>
-                                  <span className={`badge ${
-                                    batch.status?.toLowerCase() === 'active'
-                                      ? 'bg-success'
-                                      : batch.status?.toLowerCase() === 'pending'
-                                      ? 'bg-warning'
-                                      : 'bg-secondary'
-                                  }`}>
+                                  <span className={`badge ${batch.status?.toLowerCase() === 'active' ? 'bg-success' : batch.status?.toLowerCase() === 'pending' ? 'bg-warning' : 'bg-secondary'}`}>
                                     {batch.status || 'N/A'}
                                   </span>
                                 </td>
                                 <td>
-                                  <button
-                                    className="btn btn-outline-dark btn-sm me-2"
-                                    onClick={() => handleOpenViewModal(batch)}
-                                  >
-                                    View
-                                  </button>
-                                  {batch.status?.toLowerCase() === 'active' && (
-                                    <button
-                                      className="btn btn-outline-primary btn-sm"
-                                      onClick={() => handleOpenEditModal(index)}
-                                    >
-                                      Edit
-                                    </button>
-                                  )}
+                                  <div className="d-flex flex-column flex-sm-row gap-1">
+                                    <button className="btn btn-outline-dark btn-sm" onClick={() => handleOpenViewModal(batch)}>View</button>
+                                    {batch.status?.toLowerCase() === 'active' && (
+                                      <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>Edit</button>
+                                    )}
+                                  </div>
                                 </td>
                               </tr>
                             ))
@@ -159,6 +132,7 @@ function Batch() {
                         </ul>
                       </nav>
                     </div>
+
                   </div>
                 </div>
               </div>
@@ -167,7 +141,6 @@ function Batch() {
         </div>
       </div>
 
-      {/* MODAL: Edit Batch */}
       <Modal show={editModalOpen} onHide={handleCloseEditModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Edit Batch</Modal.Title>
@@ -176,18 +149,11 @@ function Batch() {
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Batch Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={editBatchName}
-                onChange={(e) => setEditBatchName(e.target.value)}
-              />
+              <Form.Control type="text" value={editBatchName} onChange={(e) => setEditBatchName(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Course</Form.Label>
-              <Form.Select
-                value={editCourse}
-                onChange={(e) => setEditCourse(e.target.value)}
-              >
+              <Form.Select value={editCourse} onChange={(e) => setEditCourse(e.target.value)}>
                 <option value="">Select course</option>
                 <option value="Komputer">Komputer</option>
                 <option value="Meka">Meka</option>
@@ -198,10 +164,7 @@ function Batch() {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Status</Form.Label>
-              <Form.Select
-                value={editStatus}
-                onChange={(e) => setEditStatus(e.target.value)}
-              >
+              <Form.Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </Form.Select>
@@ -214,7 +177,6 @@ function Batch() {
         </Modal.Footer>
       </Modal>
 
-      {/* MODAL: View Batch */}
       <Modal show={viewModalOpen} onHide={handleCloseViewModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Batch Details</Modal.Title>
