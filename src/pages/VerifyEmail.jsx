@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
     const handleVerify = () => {
         if (inputCode === correctCode) {
             setMessage('Verification successful! Your email has been verified.');
-            setTimeout(() => navigate('/'), 2000); // ✅ Betulkan penggunaan navigate
+            setTimeout(() => navigate('/login'), 2000); // ✅ Betulkan penggunaan navigate
         } else {
             setMessage('Invalid code. Please try again.');
         }

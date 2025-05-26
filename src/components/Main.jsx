@@ -1,10 +1,12 @@
 import React from 'react';
-import { Nav, Navbar, NavbarCollapse, Container, Form, InputGroup, ListGroup } from "react-bootstrap";
+import { Nav, Navbar, NavbarCollapse, Container } from "react-bootstrap";
 import "./../assets/css/material-dashboard.css";
 import Sidebar from './Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 function Main({ children }) {
   const [sidebarVisible, setSidebarVisible] = React.useState(false);
+  const navigate = useNavigate(); // ← Tambah ini untuk redirect
 
   React.useEffect(() => {
     if (sidebarVisible) {
@@ -18,7 +20,6 @@ function Main({ children }) {
     <>
       <Sidebar show={sidebarVisible} />
       <main className="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-        {/* Navbar */}
         <Navbar expand="lg" className="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
           <Container fluid className="container-fluid py-1 px-3">
             <nav aria-label="breadcrumb">
@@ -39,13 +40,8 @@ function Main({ children }) {
                     </div>
                   </a>
                 </li>
-                <li className="nav-item px-3 d-flex align-items-center">
-                  <a href="#" className="nav-link text-body p-0">
-                    <i className="material-symbols-rounded fixed-plugin-button-nav">settings</i>
-                  </a>
-                </li>
                 <li className="nav-item d-flex align-items-center">
-                  <a href="#" className="nav-link text-body font-weight-bold px-0">
+                  <a onClick={() => navigate('/dashboard/setting')} className="nav-link text-body font-weight-bold px-0" style={{ cursor: 'pointer' }}>
                     <i className="material-symbols-rounded">account_circle</i>
                   </a>
                 </li>
@@ -53,7 +49,6 @@ function Main({ children }) {
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        {/* End Navbar */}
 
         <div className="container-fluid px-3 px-md-4 py-3" style={{ minHeight: '100vh', overflowX: 'hidden' }}>
           {children}
