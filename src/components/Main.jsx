@@ -31,7 +31,7 @@ function Main({ children }) {
             <Navbar.Collapse className="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
               <div className="ms-md-auto pe-md-3 d-flex align-items-center"></div>
               <ul className="navbar-nav d-flex align-items-center justify-content-end">
-                <li className="nav-item d-xl-none ps-3 d-flex align-items-center">
+                <li className="nav-item d-xl-none ps-3 d-flex align-items-center mb-1 me-3">
                   <a onClick={() => setSidebarVisible(!sidebarVisible)} className="nav-link text-body p-0 cursor-pointer" id="iconNavbarSidenav">
                     <div className="sidenav-toggler-inner">
                       <i className="sidenav-toggler-line"></i>

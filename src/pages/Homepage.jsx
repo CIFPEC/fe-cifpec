@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Dropdown, Form, InputGroup, Modal } from "react-bootstrap";
+import { Button, Dropdown, Form, Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Logo from "./../assets/img/Cifpec-Logo.png";
@@ -75,45 +75,59 @@ const Homepage = () => {
       </nav>
 
       <header className="page-header min-vh-50 border-radius-xl my-3 d-flex align-items-center justify-content-center position-relative text-center text-white" style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')",
+        backgroundImage: "url('/assets/img/bg-homepage.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center"
       }}>
-        <h1 className="z-1 fs-3 fs-md-1">Sistem Pengurusan Cifpec</h1>
+        <h1 className="z-1 fs-3 fs-md-1 text-white">Sistem Pengurusan Cifpec</h1>
         <span className="mask bg-gradient-dark opacity-6 position-absolute top-0 start-0 w-100 h-100"></span>
       </header>
 
-      <div className="row g-2">
-        <div className="col-12 col-lg-6">
-          <InputGroup className="mb-3">
-            <Form.Control
-              placeholder="Cari Projek"
-              value={carian}
-              onChange={(e) => setCarian(e.target.value)}
-            />
-            <Dropdown onSelect={(e) => setSesi(e)}>
-              <Dropdown.Toggle variant="outline-secondary">{sesi}</Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item eventKey="Semua Sesi">Semua Sesi</Dropdown.Item>
-                <Dropdown.Item eventKey="2022">2022</Dropdown.Item>
-                <Dropdown.Item eventKey="2023">2023</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Dropdown onSelect={(e) => setKursus(e)}>
-              <Dropdown.Toggle variant="outline-secondary">{kursus}</Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item eventKey="Semua Kursus">Semua Kursus</Dropdown.Item>
-                <Dropdown.Item eventKey="Komputer">Komputer</Dropdown.Item>
-                <Dropdown.Item eventKey="Mekatronik">Mekatronik</Dropdown.Item>
-                <Dropdown.Item eventKey="Automotif">Automotif</Dropdown.Item>
-                <Dropdown.Item eventKey="Pembuatan">Pembuatan</Dropdown.Item>
-                <Dropdown.Item eventKey="Telekomunikasi">Telekomunikasi</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Button variant="outline-secondary" onClick={handleSearch}>
-              <i className="bi bi-search"></i> Cari
-            </Button>
-          </InputGroup>
+      <div className="row g-2 justify-content-start px-2 px-md-3">
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <Form.Control
+            type="text"
+            placeholder="Cari Projek"
+            value={carian}
+            onChange={(e) => setCarian(e.target.value)}
+            className="border border-secondary mb-3"
+            style={{
+              height: '38px',
+              fontSize: '0.9rem',
+              paddingLeft: '12px',
+              borderRadius: '8px',
+              maxWidth: '180px',
+            }}
+          />
+
+          <Dropdown onSelect={(e) => setSesi(e)}>
+            <Dropdown.Toggle variant="outline-secondary" style={{ height: '38px', fontSize: '0.9rem', borderRadius: '8px' }}>
+              {sesi}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item eventKey="Semua Sesi">Semua Sesi</Dropdown.Item>
+              <Dropdown.Item eventKey="2022">2022</Dropdown.Item>
+              <Dropdown.Item eventKey="2023">2023</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Dropdown onSelect={(e) => setKursus(e)}>
+            <Dropdown.Toggle variant="outline-secondary" style={{ height: '38px', fontSize: '0.9rem', borderRadius: '8px' }}>
+              {kursus}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item eventKey="Semua Kursus">Semua Kursus</Dropdown.Item>
+              <Dropdown.Item eventKey="Komputer">Komputer</Dropdown.Item>
+              <Dropdown.Item eventKey="Mekatronik">Mekatronik</Dropdown.Item>
+              <Dropdown.Item eventKey="Automotif">Automotif</Dropdown.Item>
+              <Dropdown.Item eventKey="Pembuatan">Pembuatan</Dropdown.Item>
+              <Dropdown.Item eventKey="Telekomunikasi">Telekomunikasi</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Button variant="outline-secondary" onClick={handleSearch} style={{ height: '38px', fontSize: '0.9rem', borderRadius: '8px' }}>
+            <i className="bi bi-search"></i> Cari
+          </Button>
         </div>
       </div>
 

@@ -73,7 +73,7 @@ function Auth() {
   const showCourseDropdown = ["Pelajar", "Penyelia", "Penyelaras"].includes(registerForm.role);
 
   return (
-    <div className="auth d-flex justify-content-center align-items-center p-3">
+    <div className="auth d-flex justify-content-center align-items-center p-3" style={{ backgroundImage: `url('/bg-login.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
       <div className="form-box glass-box w-100" style={{ maxWidth: '500px' }}>
         <div className="auth-logo text-center">
           <Image src={Logo} alt="CIFPEC Logo" className="img-fluid" style={{ maxWidth: '180px' }} />

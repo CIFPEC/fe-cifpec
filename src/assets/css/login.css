@@ -44,10 +44,6 @@ body {
   z-index: 2;
 }
 
-.auth .glass-box {
-  background-color: transparent;
-}
-
 .auth .form-login {
   background-color: rgba(255, 255, 255, 0.5) !important;
   border: 1px solid #6a11cb !important;
@@ -106,7 +102,7 @@ body {
 }
 
 .auth .form-login::placeholder {
-  color: #666 !important;
+  color: black !important;
 }
 
 .auth .auth-logo {
