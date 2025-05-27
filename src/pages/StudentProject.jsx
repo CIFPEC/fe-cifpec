@@ -45,7 +45,9 @@ function StudentProject() {
     sessionStorage.setItem('projectList', JSON.stringify(projectList));
     sessionStorage.removeItem('kumpulanData');
     setIsSubmitted(true);
+    navigate('/dashboard/projectlist'); // ⬅️ Tambah line ini
   };
+  
 
   return (
     <Main>
