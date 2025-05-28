@@ -49,23 +49,23 @@ function Course() {
           <div className="col-12 col-lg-10">
             <div className="card p-4 shadow-sm">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
-                <h6 className="fw-bold mb-0">Senarai Projek (Komputer)</h6>
-                <button className="btn btn-success" onClick={handleOpenCreateModal}>Create New</button>
+                <h6 className="fw-bold mb-0">Senarai Kursus</h6>
+                <button className="btn btn-success" onClick={handleOpenCreateModal}>Cipta Baru</button>
               </div>
 
               <div className="table-responsive">
                 <table className="table table-bordered text-center align-middle">
                   <thead className="table-light">
                     <tr>
-                      <th>Name</th>
+                      <th>Nama</th>
                       <th>Penyelaras</th>
-                      <th>Action</th>
+                      <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
                     {projectList.length === 0 ? (
                       <tr>
-                        <td colSpan="3">No projects available</td>
+                        <td colSpan="3">Tiada Kursus Tersedia</td>
                       </tr>
                     ) : (
                       projectList.map((name, index) => (
@@ -74,7 +74,7 @@ function Course() {
                           <td>Haida</td>
                           <td>
                             <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
-                              <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>edit</button>
+                              <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>Ubah</button>
                             </div>
                           </td>
                         </tr>
@@ -91,38 +91,38 @@ function Course() {
       {/* Create New Modal */}
       <Modal show={showCreateModal} onHide={handleCloseCreateModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Add New Project</Modal.Title>
+          <Modal.Title>Tambah Kursus</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Project Name</Form.Label>
-              <Form.Control type="text" placeholder="Enter project name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
+              <Form.Label>Nama Kursus</Form.Label>
+              <Form.Control type="text" placeholder="Cipta Nama Kursus" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseCreateModal}>Close</Button>
-          <Button variant="primary" onClick={handleAddProject}>Save</Button>
+          <Button variant="secondary" onClick={handleCloseCreateModal}>Tutup</Button>
+          <Button variant="primary" onClick={handleAddProject}>Simpan</Button>
         </Modal.Footer>
       </Modal>
 
       {/* Edit Project Modal */}
       <Modal show={showEditModal} onHide={handleCloseEditModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Project</Modal.Title>
+          <Modal.Title>Ubah Kursus</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Edit Project Name</Form.Label>
-              <Form.Control type="text" placeholder="Edit project name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
+              <Form.Label>Ubah Nama Kursus</Form.Label>
+              <Form.Control type="text" placeholder="Cipta Nama Kursus" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseEditModal}>Close</Button>
-          <Button variant="primary" onClick={handleEditProject}>Save Changes</Button>
+          <Button variant="secondary" onClick={handleCloseEditModal}>Tutup</Button>
+          <Button variant="primary" onClick={handleEditProject}>Simpan Perubahan</Button>
         </Modal.Footer>
       </Modal>
     </Main>

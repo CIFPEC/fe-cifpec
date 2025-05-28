@@ -49,7 +49,7 @@ function ProjectList() {
                 <h6 className="fw-bold mb-3 mb-md-0">Senarai Projek (semua department)</h6>
                 <div className="d-flex flex-md-row flex-column align-items-md-center gap-2 w-100 w-md-auto mt-3">
                   <button onClick={handleOpenModal} className="btn btn-danger w-100 w-md-auto px-4 py-2">
-                    Create New
+                    Cipta Baru
                   </button>
                   <button className="btn btn-success w-100 w-md-auto px-4 py-2">
                     Export

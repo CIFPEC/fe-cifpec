@@ -78,24 +78,24 @@ function Batch() {
                 <div className="tab-content" id="batchTabContent">
                   <div className="tab-pane fade show active" id="batch" role="tabpanel">
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-3 pt-3 gap-2">
-                      <h6>Batch Lists</h6>
-                      <button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/batch/new')}>Create New</button>
+                      <h6>Senarai Batch</h6>
+                      <button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/batch/new')}>Cipta Baru</button>
                     </div>
 
                     <div className="table-responsive p-3">
                       <table className="table table-bordered align-items-center mb-0">
                         <thead className="table-dark">
                           <tr>
-                            <th>Batch Name</th>
-                            <th>Course</th>
+                            <th>Nama Batch</th>
+                            <th>Kursus</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th>Tindakan</th>
                           </tr>
                         </thead>
                         <tbody>
                           {batches.length === 0 ? (
                             <tr>
-                              <td colSpan="4" className="text-center">No batch available</td>
+                              <td colSpan="4" className="text-center">Tiada Batch Tersedia</td>
                             </tr>
                           ) : (
                             batches.map((batch, index) => (
@@ -109,9 +109,9 @@ function Batch() {
                                 </td>
                                 <td>
                                   <div className="d-flex flex-column flex-sm-row gap-1">
-                                    <button className="btn btn-outline-dark btn-sm" onClick={() => handleOpenViewModal(batch)}>View</button>
+                                    <button className="btn btn-outline-dark btn-sm" onClick={() => handleOpenViewModal(batch)}>Lihat</button>
                                     {batch.status?.toLowerCase() === 'active' && (
-                                      <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>Edit</button>
+                                      <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>Ubah</button>
                                     )}
                                   </div>
                                 </td>
@@ -143,18 +143,18 @@ function Batch() {
 
       <Modal show={editModalOpen} onHide={handleCloseEditModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Batch</Modal.Title>
+          <Modal.Title>Ubah Batch</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Batch Name</Form.Label>
+              <Form.Label>Nama Batch</Form.Label>
               <Form.Control type="text" value={editBatchName} onChange={(e) => setEditBatchName(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Course</Form.Label>
+              <Form.Label>Kursus</Form.Label>
               <Form.Select value={editCourse} onChange={(e) => setEditCourse(e.target.value)}>
-                <option value="">Select course</option>
+                <option value="">Pilih Kursus</option>
                 <option value="Komputer">Komputer</option>
                 <option value="Meka">Meka</option>
                 <option value="Pembuatan">Pembuatan</option>
@@ -165,33 +165,33 @@ function Batch() {
             <Form.Group className="mb-3">
               <Form.Label>Status</Form.Label>
               <Form.Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Tidak Aktif</option>
               </Form.Select>
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseEditModal}>Close</Button>
-          <Button variant="primary" onClick={handleSaveEdit}>Save Changes</Button>
+          <Button variant="secondary" onClick={handleCloseEditModal}>Tutup</Button>
+          <Button variant="primary" onClick={handleSaveEdit}>Simpan Perubahan</Button>
         </Modal.Footer>
       </Modal>
 
       <Modal show={viewModalOpen} onHide={handleCloseViewModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Batch Details</Modal.Title>
+          <Modal.Title>Butiran Batch</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {viewBatch && (
             <div>
-              <p><strong>Batch Name:</strong> {viewBatch.name}</p>
-              <p><strong>Course:</strong> {viewBatch.course}</p>
+              <p><strong>Nama Batch:</strong> {viewBatch.name}</p>
+              <p><strong>Kursus:</strong> {viewBatch.course}</p>
               <p><strong>Status:</strong> {viewBatch.status}</p>
             </div>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseViewModal}>Close</Button>
+          <Button variant="secondary" onClick={handleCloseViewModal}>Tutup</Button>
         </Modal.Footer>
       </Modal>
     </Main>

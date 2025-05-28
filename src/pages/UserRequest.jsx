@@ -40,7 +40,7 @@ function UserRequest() {
         <div className="row justify-content-center">
           <div className="col-lg-9">
             <div className="card p-4 shadow-sm">
-              <h6 className="fw-bold mb-3">Permintaan User</h6>
+              <h6 className="fw-bold mb-3">Permintaan Pengguna</h6>
 
               <div className="table-responsive">
                 <table className="table table-bordered text-center align-middle">
@@ -48,9 +48,9 @@ function UserRequest() {
                     <tr>
                       <th>Email</th>
                       <th>Status</th>
-                      <th>Department</th>
-                      <th>Level</th>
-                      <th>Aksi</th>
+                      <th>Jabatan</th>
+                      <th>Tahap</th>
+                      <th>Tindakan</th>
                     </tr>
                   </thead>
                   <tbody>
