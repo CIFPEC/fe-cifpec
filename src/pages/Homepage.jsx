@@ -75,7 +75,7 @@ const Homepage = () => {
       </nav>
 
       <header className="page-header min-vh-50 border-radius-xl my-3 d-flex align-items-center justify-content-center position-relative text-center text-white" style={{
-        backgroundImage: "url('/assets/img/bg-homepage.jpg')",
+        backgroundImage: "url('/src/assets/img/bg-homepage.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center"
       }}>

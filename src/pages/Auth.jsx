@@ -1,9 +1,10 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import "./../assets/css/login.css";
 import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Form, Button, Image, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import { Eye, EyeOff } from 'lucide-react';
 
 function Auth() {
@@ -17,6 +18,19 @@ function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showRetypePassword, setShowRetypePassword] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      const decoded = jwtDecode(token);
+      const userHasProfile = decoded?.userName || decoded?.fullName || decoded?.userPhone;
+      if (userHasProfile) {
+        navigate('/dashboard');
+      } else {
+        navigate('/dashboard/setting');
+      }
+    }
+  }, []);
 
   const handleLoginInput = (e) => setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
   const handleRegisterInput = (e) => setRegisterForm({ ...registerForm, [e.target.name]: e.target.value });
@@ -57,9 +71,7 @@ function Auth() {
       };
 
       const res = await axios.post('https://api-cifpec.xtivebiz.com/api/v1/auth/register', payload);
-      console.log("res.data dari register:", res.data);
       const verifyToken = res.data?.data?.verifyToken || res.data?.verifyToken;
-      console.log("verifyToken sebelum navigate:", verifyToken);
       setVerificationCode("******");
       setShowVerificationModal(true);
       setTimeout(() => navigate('/verifyemail', { state: { email: registerForm.email, token: verifyToken } }), 5000);
@@ -92,8 +104,19 @@ function Auth() {
         userEmail: loginForm.email,
         userPassword: loginForm.password
       });
-      localStorage.setItem('accessToken', res.data.data.token);
-      navigate('/dashboard');
+      const token = res.data.data.token;
+      localStorage.setItem('accessToken', token);
+
+      const decoded = jwtDecode(token);
+      localStorage.setItem('user', JSON.stringify(decoded));
+
+      const userHasProfile = decoded?.userName || decoded?.fullName || decoded?.userPhone;
+
+      if (!userHasProfile) {
+        navigate('/dashboard/setting');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       const res = error.response?.data;
       const errorsObj = {};
@@ -124,8 +147,7 @@ function Auth() {
         style={error ? { borderColor: 'red' } : {}}
       />
       <span onClick={toggle} style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: '#aaa' }}>
-      {show ? <EyeOff size={18} color="#333" /> : <Eye size={18} color="#333" />}
-
+        {show ? <EyeOff size={18} color="#333" /> : <Eye size={18} color="#333" />}
       </span>
       {error && <div className="error-message">{error}</div>}
     </div>
