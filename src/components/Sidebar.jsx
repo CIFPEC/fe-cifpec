@@ -14,9 +14,12 @@ function Sidebar({ show }) {
   };
 
   const handleLogout = () => {
-    sessionStorage.clear();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('firstLogin');
     navigate('/login');
   };
+  
 
   const menuItems = [
     {

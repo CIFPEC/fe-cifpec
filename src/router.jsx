@@ -1,6 +1,4 @@
-import {
-  createBrowserRouter
-} from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -16,74 +14,125 @@ import ProjectList from "./pages/ProjectList.jsx";
 import WebSetting from "./pages/WebSetting.jsx";
 import VerifyEmailPage from "./pages/VerifyEmail.jsx";
 import Homepage from "./pages/Homepage.jsx";
+import PrivateRoute from "./components/PrivateRoute";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Homepage />,
+    element: <Homepage />, // Public route
   },
   {
     path: "/login",
-    element: <Auth />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
-  },
-  {
-    path: "/dashboard/setting",
-    element: <Profile />,
-  },
-   {
-    path: "/dashboard/course",
-    element: <Course />,
-  },
-  {
-    path: "/dashboard/batch",
-    element: <Batch />,
-  },
-   {
-    path: "/dashboard/setupbatch",
-    element: <SetupBatch />,
-  },
-  {
-    path: "/dashboard/lecturelist",
-    element: <LectureList />,
-  },
-  {
-    path: "/dashboard/studentproject",
-    element: <StudentProject />,
-  },
-  {
-    path: "/dashboard/userrequest",
-    element: <UserRequest />,
-  },
-  {
-    path: "/dashboard/projectrequirement",
-    element: <ProjectRequirement />,
-  },
-  {
-    path: "/dashboard/projectlist",
-    element: <ProjectList />,
-  },
-  {
-    path: "/dashboard/batch/new",
-    element: <SetupBatch />,
-  },
-  {
-    path: "/dashboard/project/newproject",
-    element: <StudentProject />,
-  },
-  {
-    path: "/dashboard/web-setting",
-    element: <WebSetting />,
+    element: <Auth />, // Public route
   },
   {
     path: "/verifyemail",
-    element: <VerifyEmailPage />,
+    element: <VerifyEmailPage />, // Public route
   },
-
-
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <Dashboard />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/setting",
+    element: (
+      <PrivateRoute>
+        <Profile />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/course",
+    element: (
+      <PrivateRoute>
+        <Course />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/batch",
+    element: (
+      <PrivateRoute>
+        <Batch />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/setupbatch",
+    element: (
+      <PrivateRoute>
+        <SetupBatch />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/lecturelist",
+    element: (
+      <PrivateRoute>
+        <LectureList />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/studentproject",
+    element: (
+      <PrivateRoute>
+        <StudentProject />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/userrequest",
+    element: (
+      <PrivateRoute>
+        <UserRequest />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/projectrequirement",
+    element: (
+      <PrivateRoute>
+        <ProjectRequirement />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/projectlist",
+    element: (
+      <PrivateRoute>
+        <ProjectList />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/batch/new",
+    element: (
+      <PrivateRoute>
+        <SetupBatch />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/project/newproject",
+    element: (
+      <PrivateRoute>
+        <StudentProject />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/dashboard/web-setting",
+    element: (
+      <PrivateRoute>
+        <WebSetting />
+      </PrivateRoute>
+    ),
+  },
 ]);
 
 export default router;
