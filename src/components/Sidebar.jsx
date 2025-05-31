@@ -2,11 +2,16 @@ import React from 'react'
 import CFImage from './CFImage';
 import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Link, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 function Sidebar({ show }) {
   const [openMenus, setOpenMenus] = React.useState({});
   const [activeMenu, setActiveMenu] = React.useState(null);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem('accessToken');
+  const decoded = token ? jwtDecode(token) : {};
+  const roleId = decoded?.roleId;
 
   const toggleMenu = (menuId) => {
     setOpenMenus(prev => ({ ...prev, [menuId]: !prev[menuId] }));
@@ -19,26 +24,26 @@ function Sidebar({ show }) {
     localStorage.removeItem('firstLogin');
     navigate('/login');
   };
-  
 
   const menuItems = [
     {
       id: "projects",
       label: "Projects",
+      show: [1, 2, 3, 4, 5].includes(roleId),
       items: [
-        { label: "Project Lists (Admin)", link: "/dashboard/projectlist" },
-        { label: "Project Lists (Coordinator & Supervisor)", link: "/dashboard/projectlist" },
-        { label: "Project Lists (Student)", link: "/dashboard/projectlist" },
+        { label: "Project Lists", link: "/dashboard/projectlist" },
       ],
     },
     {
       id: "batches",
       label: "Batches",
+      show: [1].includes(roleId),
       items: [{ label: "Batch Lists", link: "/dashboard/batch" }],
     },
     {
       id: "users",
       label: "Users",
+      show: [1].includes(roleId),
       items: [
         { label: "User Requests", link: "/dashboard/userrequest" },
         { label: "Lecturer Lists", link: "/dashboard/lecturelist" },
@@ -47,6 +52,7 @@ function Sidebar({ show }) {
     {
       id: "courses",
       label: "Courses",
+      show: [1].includes(roleId),
       items: [{ label: "Course Lists", link: "/dashboard/course" }],
     },
   ];
@@ -72,7 +78,7 @@ function Sidebar({ show }) {
             </Link>
           </li>
 
-          {menuItems.map((menu) => (
+          {menuItems.filter(menu => menu.show).map((menu) => (
             <li className="nav-item" key={menu.id}>
               <div
                 className={`nav-link d-flex justify-content-between align-items-center ${activeMenu === menu.id ? "active bg-gradient-dark text-white" : "text-dark"}`}
@@ -102,16 +108,18 @@ function Sidebar({ show }) {
             </li>
           ))}
 
-          <li className="nav-item">
-            <Link
-              to="/dashboard/web-setting"
-              className={`nav-link ${activeMenu === "web-setting" ? "active bg-gradient-dark text-white" : "text-dark"}`}
-              onClick={() => setActiveMenu("web-setting")}
-            >
-              <i className="material-symbols-rounded opacity-5">settings</i>
-              <span className="nav-link-text ms-1">Web Settings</span>
-            </Link>
-          </li>
+          {roleId === 2 && (
+            <li className="nav-item">
+              <Link
+                to="/dashboard/web-setting"
+                className={`nav-link ${activeMenu === "web-setting" ? "active bg-gradient-dark text-white" : "text-dark"}`}
+                onClick={() => setActiveMenu("web-setting")}
+              >
+                <i className="material-symbols-rounded opacity-5">settings</i>
+                <span className="nav-link-text ms-1">Web Settings</span>
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
 
