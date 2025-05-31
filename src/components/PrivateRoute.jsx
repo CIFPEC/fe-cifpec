@@ -1,14 +1,26 @@
-// src/components/PrivateRoute.jsx
-import { Navigate } from "react-router-dom";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-function PrivateRoute({ children }) {
-  const token = localStorage.getItem("accessToken");
+function PrivateRoute({ element, roles }) {
+  const token = localStorage.getItem('accessToken');
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/error/401" />;
   }
 
-  return children;
+  try {
+    const decoded = jwtDecode(token);
+    const userRole = decoded?.roleId;
+
+    if (!roles.includes(userRole)) {
+      return <Navigate to="/error/403" />;
+    }
+
+    return element;
+  } catch (error) {
+    return <Navigate to="/error/401" />;
+  }
 }
 
 export default PrivateRoute;

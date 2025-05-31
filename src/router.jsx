@@ -15,6 +15,7 @@ import WebSetting from "./pages/WebSetting.jsx";
 import VerifyEmailPage from "./pages/VerifyEmail.jsx";
 import Homepage from "./pages/Homepage.jsx";
 import PrivateRoute from "./components/PrivateRoute";
+import { Error401, Error403, Error404 } from "./pages/ErrorPages";
 
 const router = createBrowserRouter([
   {
@@ -31,108 +32,70 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: (
-      <PrivateRoute>
-        <Dashboard />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<Dashboard />} roles={[1, 2, 3, 4, 5]} />,
   },
   {
     path: "/dashboard/setting",
-    element: (
-      <PrivateRoute>
-        <Profile />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<Profile />} roles={[1, 2, 3, 4, 5]} />,
   },
   {
     path: "/dashboard/course",
-    element: (
-      <PrivateRoute>
-        <Course />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<Course />} roles={[1]} />,
   },
   {
     path: "/dashboard/batch",
-    element: (
-      <PrivateRoute>
-        <Batch />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<Batch />} roles={[1]} />,
   },
   {
     path: "/dashboard/setupbatch",
-    element: (
-      <PrivateRoute>
-        <SetupBatch />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<SetupBatch />} roles={[1]} />,
   },
   {
     path: "/dashboard/lecturelist",
-    element: (
-      <PrivateRoute>
-        <LectureList />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<LectureList />} roles={[1]} />,
   },
   {
     path: "/dashboard/studentproject",
-    element: (
-      <PrivateRoute>
-        <StudentProject />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<StudentProject />} roles={[5]} />,
   },
   {
     path: "/dashboard/userrequest",
-    element: (
-      <PrivateRoute>
-        <UserRequest />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<UserRequest />} roles={[1]} />,
   },
   {
     path: "/dashboard/projectrequirement",
-    element: (
-      <PrivateRoute>
-        <ProjectRequirement />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<ProjectRequirement />} roles={[1]} />,
   },
   {
     path: "/dashboard/projectlist",
-    element: (
-      <PrivateRoute>
-        <ProjectList />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<ProjectList />} roles={[1, 2, 3, 4, 5]} />,
   },
   {
     path: "/dashboard/batch/new",
-    element: (
-      <PrivateRoute>
-        <SetupBatch />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<SetupBatch />} roles={[1]} />,
   },
   {
     path: "/dashboard/project/newproject",
-    element: (
-      <PrivateRoute>
-        <StudentProject />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<StudentProject />} roles={[5]} />,
   },
   {
     path: "/dashboard/web-setting",
-    element: (
-      <PrivateRoute>
-        <WebSetting />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute element={<WebSetting />} roles={[2]} />,
   },
+  {
+    path: "/error/401",
+    element: <Error401 />,
+  },
+  {
+    path: "/error/403",
+    element: <Error403 />,
+  },
+
+  {
+    path: "*",
+    element: <Error404 />,
+  }
+  
 ]);
 
 export default router;

@@ -3,7 +3,7 @@ import "./../assets/css/login.css";
 import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Form, Button, Image, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -61,7 +61,7 @@ function Auth() {
     if (Object.keys(newErrors).length > 0) { setRegisterErrors(newErrors); return; }
 
     try {
-      const roleMap = { "Admin": 1, "Penyelaras": 2, "Penyelia": 3, "Web Maintenance": 4, "Pelajar": 5 };
+      const roleMap = { "Admin": 1, "Web Maintenance": 2, "Penyelaras": 3, "Penyelia": 4, "Pelajar": 5 };
       const payload = {
         userEmail: registerForm.email,
         userPassword: registerForm.password,
@@ -70,7 +70,7 @@ function Auth() {
         ...(registerForm.role === "Pelajar" && { courseId: 1 })
       };
 
-      const res = await axios.post('https://api-cifpec.xtivebiz.com/api/v1/auth/register', payload);
+      const res = await axiosInstance.post('/auth/register', payload);
       const verifyToken = res.data?.data?.verifyToken || res.data?.verifyToken;
       setVerificationCode("******");
       setShowVerificationModal(true);
@@ -100,7 +100,7 @@ function Auth() {
     if (Object.keys(newErrors).length > 0) { setLoginErrors(newErrors); return; }
 
     try {
-      const res = await axios.post('https://api-cifpec.xtivebiz.com/api/v1/auth/login', {
+      const res = await axiosInstance.post('/auth/login', {
         userEmail: loginForm.email,
         userPassword: loginForm.password
       });
