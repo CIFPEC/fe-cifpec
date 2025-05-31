@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Base URL API
-const baseURL = 'https://api-cifpec.xtivebiz.com/api/v1';
+// Base URL API dari .env (VITE)
+const baseURL = import.meta.env.VITE_API_URL;
 
 // Cipta instance axios
 const axiosInstance = axios.create({
@@ -29,10 +29,10 @@ axiosInstance.interceptors.response.use((response) => {
 }, async (error) => {
   const originalRequest = error.config;
 
-  if (error.response && error.response.status === 401 && !originalRequest._retry) {
+  if (error.response && error.response.status === 401 && originalRequest && !originalRequest._retry) {
     originalRequest._retry = true;
     try {
-      const refreshRes = await axios.post(`${baseURL}/auth/token/refresh`, {}, {
+      const refreshRes = await axios.get(`${baseURL}/token`, {
         withCredentials: true
       });
       const newToken = refreshRes.data?.data?.token;
