@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import Main from '../components/Main';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
+import axiosInstance from '../utils/axiosInstance';
 
 function Batch() {
   const navigate = useNavigate();
 
   const [batches, setBatches] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [editBatchName, setEditBatchName] = useState('');
@@ -17,25 +21,25 @@ function Batch() {
   const [viewBatch, setViewBatch] = useState(null);
 
   useEffect(() => {
-    const batchString = sessionStorage.getItem('newBatch');
-    if (batchString) {
-      const newBatch = JSON.parse(batchString);
-      const isDuplicate = batches.some(
-        (b) => b.name === newBatch.name && b.course === newBatch.course && b.status === newBatch.status
-      );
-      if (!isDuplicate) {
-        setBatches((prev) => [...prev, newBatch]);
-      }
-      sessionStorage.removeItem('newBatch');
+    fetchBatches(currentPage);
+  }, [currentPage]);
+
+  const fetchBatches = async (page) => {
+    try {
+      const res = await axiosInstance.get(`/batches?page=${page}&limit=5`);
+      setBatches(res.data.data);
+      setTotalPages(res.data.paginate.totalPages);
+    } catch (err) {
+      console.error('Gagal ambil data batch:', err);
     }
-  }, [batches]);
+  };
 
   const handleOpenEditModal = (index) => {
     const batch = batches[index];
     setEditIndex(index);
-    setEditBatchName(batch.name);
-    setEditCourse(batch.course);
-    setEditStatus(batch.status);
+    setEditBatchName(batch.batchName);
+    setEditCourse(batch.batchCourses?.map(c => c.courseName).join(', '));
+    setEditStatus(''); // Status placeholder
     setEditModalOpen(true);
   };
 
@@ -50,9 +54,9 @@ function Batch() {
   const handleSaveEdit = () => {
     const updated = [...batches];
     updated[editIndex] = {
-      name: editBatchName,
-      course: editCourse,
-      status: editStatus
+      ...updated[editIndex],
+      batchName: editBatchName,
+      batchCourses: editCourse.split(', ').map(name => ({ courseName: name }))
     };
     setBatches(updated);
     handleCloseEditModal();
@@ -79,7 +83,7 @@ function Batch() {
                   <div className="tab-pane fade show active" id="batch" role="tabpanel">
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-3 pt-3 gap-2">
                       <h6>Senarai Batch</h6>
-                      <button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/batch/new')}>Cipta Baru</button>
+                      <button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/batch/new')}>Create New</button>
                     </div>
 
                     <div className="table-responsive p-3">
@@ -100,19 +104,15 @@ function Batch() {
                           ) : (
                             batches.map((batch, index) => (
                               <tr key={index}>
-                                <td>{batch.name}</td>
-                                <td>{batch.course}</td>
+                                <td>{batch.batchName}</td>
+                                <td>{batch.batchCourses?.map(c => c.courseName).join(', ')}</td>
                                 <td>
-                                  <span className={`badge ${batch.status?.toLowerCase() === 'active' ? 'bg-success' : batch.status?.toLowerCase() === 'pending' ? 'bg-warning' : 'bg-secondary'}`}>
-                                    {batch.status || 'N/A'}
-                                  </span>
+                                  <span className="badge bg-secondary">Belum Ditentukan</span>
                                 </td>
                                 <td>
                                   <div className="d-flex flex-column flex-sm-row gap-1">
                                     <button className="btn btn-outline-dark btn-sm" onClick={() => handleOpenViewModal(batch)}>Lihat</button>
-                                    {batch.status?.toLowerCase() === 'active' && (
-                                      <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>Ubah</button>
-                                    )}
+                                    <button className="btn btn-outline-primary btn-sm" onClick={() => handleOpenEditModal(index)}>Ubah</button>
                                   </div>
                                 </td>
                               </tr>
@@ -125,10 +125,17 @@ function Batch() {
                     <div className="d-flex justify-content-center p-3">
                       <nav>
                         <ul className="pagination pagination-sm mb-0">
-                          <li className="page-item"><a className="page-link" href="#">&lt;</a></li>
-                          <li className="page-item"><a className="page-link" href="#">3</a></li>
-                          <li className="page-item"><a className="page-link" href="#">5</a></li>
-                          <li className="page-item"><a className="page-link" href="#">&gt;</a></li>
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button className="page-link" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}>&lt;</button>
+                          </li>
+                          {Array.from({ length: totalPages }, (_, i) => (
+                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                              <button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
+                            </li>
+                          ))}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button className="page-link" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}>&gt;</button>
+                          </li>
                         </ul>
                       </nav>
                     </div>
@@ -153,21 +160,7 @@ function Batch() {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Kursus</Form.Label>
-              <Form.Select value={editCourse} onChange={(e) => setEditCourse(e.target.value)}>
-                <option value="">Pilih Kursus</option>
-                <option value="Komputer">Komputer</option>
-                <option value="Meka">Meka</option>
-                <option value="Pembuatan">Pembuatan</option>
-                <option value="Automotif">Automotif</option>
-                <option value="Telekomunikasi">Telekomunikasi</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Status</Form.Label>
-              <Form.Select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
-                <option value="active">Aktif</option>
-                <option value="inactive">Tidak Aktif</option>
-              </Form.Select>
+              <Form.Control type="text" value={editCourse} onChange={(e) => setEditCourse(e.target.value)} />
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -184,9 +177,9 @@ function Batch() {
         <Modal.Body>
           {viewBatch && (
             <div>
-              <p><strong>Nama Batch:</strong> {viewBatch.name}</p>
-              <p><strong>Kursus:</strong> {viewBatch.course}</p>
-              <p><strong>Status:</strong> {viewBatch.status}</p>
+              <p><strong>Nama Batch:</strong> {viewBatch.batchName}</p>
+              <p><strong>Kursus:</strong> {viewBatch.batchCourses?.map(c => c.courseName).join(', ')}</p>
+              <p><strong>Status:</strong> Belum Ditentukan</p>
             </div>
           )}
         </Modal.Body>

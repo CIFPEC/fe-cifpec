@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Main from '../components/Main';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
+import axiosInstance from '../utils/axiosInstance';
 
 function SetupBatch() {
   const navigate = useNavigate();
@@ -13,14 +14,24 @@ function SetupBatch() {
   const [lastUpdate, setLastUpdate] = useState('');
   const [showAdvance, setShowAdvance] = useState(false);
   const [requirements, setRequirements] = useState([]);
+  const [courseOptions, setCourseOptions] = useState([]);
 
-  const courseOptions = [
-    { value: 'IT', label: 'IT' },
-    { value: 'Meka', label: 'Meka' },
-    { value: 'Pembuatan', label: 'Pembuatan' },
-    { value: 'Automotif', label: 'Automotif' },
-    { value: 'Telekomunikasi', label: 'Telekomunikasi' }
-  ];
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axiosInstance.get('/courses?page=1&limit=100');
+        const options = response.data?.data.map(course => ({
+          value: course.courseId,
+          label: course.courseName
+        })) || [];
+        setCourseOptions(options);
+      } catch (error) {
+        console.error('Gagal ambil senarai kursus:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const handleAddRequirement = () => {
     setRequirements([
@@ -41,19 +52,27 @@ function SetupBatch() {
     setRequirements(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newBatch = {
-      name: batchName,
-      course: courses,
-      status: status,
-      lastUpdate: isAdvanceEnabled ? lastUpdate : null,
-      requirements: requirements,
+    const payload = {
+      batchName: batchName,
+      courses: courses.map(c => c.value),
+      ...(isAdvanceEnabled && lastUpdate && { lastUpdate }),
+      projectRequirements: requirements.map(r => ({
+        label: r.name,
+        type: r.type,
+        required: r.required,
+        tag: r.name.replace(/\s+/g, '').toLowerCase()
+      }))
     };
 
-    sessionStorage.setItem('newBatch', JSON.stringify(newBatch));
-    navigate('/dashboard/batch');
+    try {
+      await axiosInstance.post('/batches', payload);
+      navigate('/dashboard/batch');
+    } catch (error) {
+      console.error('Gagal cipta batch:', error);
+    }
   };
 
   return (
@@ -81,8 +100,8 @@ function SetupBatch() {
                       <Select
                         isMulti
                         options={courseOptions}
-                        value={courseOptions.filter(opt => courses.includes(opt.value))}
-                        onChange={(selected) => setCourses(selected.map(item => item.value))}
+                        value={courses}
+                        onChange={setCourses}
                       />
                     </div>
                   </div>
@@ -197,10 +216,13 @@ function SetupBatch() {
                     )}
                   </div>
 
-                  <div className="d-flex justify-content-end">
-                    <div>
-                      <button type="submit" className="btn btn-primary">Save</button>
-                    </div>
+                  <div className="d-flex justify-content-between">
+                    <button type="button" className="btn btn-info" onClick={() => navigate('/dashboard/batch')}>
+                      ← back
+                    </button>
+                    <button type="submit" className="btn btn-success">
+                      Save
+                    </button>
                   </div>
                 </form>
               </div>

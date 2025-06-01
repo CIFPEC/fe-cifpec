@@ -68,7 +68,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard/projectlist",
-    element: <PrivateRoute element={<ProjectList />} roles={[1, 2, 3, 4, 5]} />,
+    element: <PrivateRoute element={<ProjectList />} roles={[1, 3, 4, 5]} />,
   },
   {
     path: "/dashboard/batch/new",
