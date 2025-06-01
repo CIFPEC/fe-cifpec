@@ -1,35 +1,53 @@
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
-// Base URL API dari .env (VITE)
-const baseURL = import.meta.env.VITE_API_URL;
+const baseURL = 'https://api-cifpec.xtivebiz.com/api/v1';
 
-// Cipta instance axios
 const axiosInstance = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true // penting untuk support cookie (refresh token)
+  withCredentials: true,
 });
 
-// Interceptor untuk tambah token sebelum setiap request
-axiosInstance.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+
+  if (token && token.split('.').length === 3) {
+    try {
+      const decoded = jwtDecode(token);
+      const now = Date.now() / 1000;
+
+      if (decoded.exp < now) {
+        const refreshRes = await axios.get(`${baseURL}/token`, {
+          withCredentials: true
+        });
+
+        const newToken = refreshRes.data?.data?.token;
+        localStorage.setItem('accessToken', newToken);
+        config.headers.Authorization = `Bearer ${newToken}`;
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (err) {
+      localStorage.removeItem('accessToken');
+      window.location.href = '/login';
+      throw err;
+    }
   }
+
   return config;
 }, (error) => {
   return Promise.reject(error);
 });
 
-// Interceptor untuk refresh token bila dapat 401
 axiosInstance.interceptors.response.use((response) => {
   return response;
 }, async (error) => {
   const originalRequest = error.config;
 
-  if (error.response && error.response.status === 401 && originalRequest && !originalRequest._retry) {
+  if (error.response && error.response.status === 401 && !originalRequest._retry) {
     originalRequest._retry = true;
     try {
       const refreshRes = await axios.get(`${baseURL}/token`, {

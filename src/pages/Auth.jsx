@@ -21,7 +21,7 @@ function Auth() {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    if (token) {
+    if (token && token.split('.').length === 3) {
       const decoded = jwtDecode(token);
       const userHasProfile = decoded?.userName || decoded?.fullName || decoded?.userPhone;
       if (userHasProfile) {
@@ -105,17 +105,21 @@ function Auth() {
         userPassword: loginForm.password
       });
       const token = res.data.data.token;
-      localStorage.setItem('accessToken', token);
 
-      const decoded = jwtDecode(token);
-      localStorage.setItem('user', JSON.stringify(decoded));
+      if (token && token.split('.').length === 3) {
+        localStorage.setItem('accessToken', token);
+        const decoded = jwtDecode(token);
+        localStorage.setItem('user', JSON.stringify(decoded));
 
-      const userHasProfile = decoded?.userName || decoded?.fullName || decoded?.userPhone;
+        const userHasProfile = decoded?.userName || decoded?.fullName || decoded?.userPhone;
 
-      if (!userHasProfile) {
-        navigate('/dashboard/setting');
+        if (!userHasProfile) {
+          navigate('/dashboard/setting');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        navigate('/dashboard');
+        setLoginErrors({ email: 'Token tidak sah. Sila log masuk semula.' });
       }
     } catch (error) {
       const res = error.response?.data;
