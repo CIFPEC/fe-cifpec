@@ -3,6 +3,7 @@ import CFImage from './CFImage';
 import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../utils/axiosInstance'; // kalau belum import
 
 function Sidebar({ show }) {
   const [openMenus, setOpenMenus] = React.useState({});
@@ -18,11 +19,17 @@ function Sidebar({ show }) {
     setActiveMenu(prev => (prev === menuId ? null : menuId));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('firstLogin');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.delete('/auth/logout'); // hantar request ke backend
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('firstLogin');
+      window.location.href = '/login';
+    }
   };
 
   const menuItems = [
