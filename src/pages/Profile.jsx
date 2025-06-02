@@ -70,7 +70,7 @@ function Profile() {
     e.preventDefault();
     try {
       console.log('formData sebelum hantar:', formData);
-  
+
       const form = new FormData();
       form.append('userName', formData.userName);
       form.append('userUsername', formData.userUsername);
@@ -79,19 +79,17 @@ function Profile() {
       if (formData.profileImage instanceof File) {
         form.append('userProfileImage', formData.profileImage);
       }
-  
-      // log semua value dalam FormData
+
       for (let pair of form.entries()) {
         console.log(pair[0]+ ': ' + pair[1]);
       }
-  
+
       await axiosInstance.patch('/user/profile', form);
       alert('Profile updated successfully.');
     } catch (err) {
       console.error('Profile update failed:', err);
     }
   };
-  
 
   const changePassword = async (e) => {
     e.preventDefault();
@@ -99,10 +97,16 @@ function Profile() {
       return alert("New password and confirmation don't match.");
     }
     try {
-      await axiosInstance.post('/user/change-password', passwords);
-      alert('Password changed successfully.');
+      const payload = {
+        oldPassword: passwords.oldPassword,
+        newPassword: passwords.newPassword,
+        retypePassword: passwords.repeatPassword
+      };
+      const res = await axiosInstance.patch('/user/profile/password', payload);
+      alert(res.data?.message || 'Password changed successfully.');
     } catch (err) {
       console.error('Password change failed:', err);
+      alert('Failed to change password.');
     }
   };
 
