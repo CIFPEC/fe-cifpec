@@ -37,7 +37,9 @@ function Profile() {
           userName: data.userName || '',
           userEmail: data.userEmail || '',
           userUsername: data.userUsername || '',
-          userGender: data.userGender || '',
+          userGender: data.userGender 
+            ? data.userGender.charAt(0).toUpperCase() + data.userGender.slice(1).toLowerCase()
+            : '',
           userPhoneNumber: data.userPhoneNumber || '',
           profileImage: null
         });
@@ -175,8 +177,20 @@ function Profile() {
                         <div className="mb-3">
                           <select className="form-select" name="userGender" value={formData.userGender} onChange={handleFormChange}>
                             <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
+                            {formData.userGender === '' && (
+                              <>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                              </>
+                            )}
+                            {formData.userGender !== '' && (
+                              <>
+                                <option value={formData.userGender}>{formData.userGender}</option>
+                                {['Male', 'Female'].filter(g => g !== formData.userGender).map((g, i) => (
+                                  <option key={i} value={g}>{g}</option>
+                                ))}
+                              </>
+                            )}
                           </select>
                         </div>
                         <div className="mb-3">
