@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Dropdown, Form, Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Logo from "./../assets/img/Cifpec-Logo.png";
+import axiosInstance from "../utils/axiosInstance";
 
 const projekList = [
   {
@@ -42,6 +42,28 @@ const Homepage = () => {
   const [sesi, setSesi] = useState("Semua Sesi");
   const [kursus, setKursus] = useState("Semua Kursus");
   const [hasilCari, setHasilCari] = useState(projekList);
+  const [siteSetting, setSiteSetting] = useState({});
+
+  useEffect(() => {
+    const fetchSiteSetting = async () => {
+      try {
+        const res = await axiosInstance.get('/site/settings');
+        setSiteSetting(res.data?.data || {});
+        if (res.data?.data?.title) {
+          document.title = res.data.data.title;
+        }
+        if (res.data?.data?.logo) {
+          const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+          link.rel = 'icon';
+          link.href = `https://api-cifpec.xtivebiz.com/site/${res.data.data.logo}`;
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
+      } catch (err) {
+        console.error("Failed to load site settings", err);
+      }
+    };
+    fetchSiteSetting();
+  }, []);
 
   const handleShow = (projek) => {
     setSelectedProjek(projek);
@@ -67,7 +89,7 @@ const Homepage = () => {
     <div className="container-fluid px-3 px-md-4">
       <nav className="navbar navbar-expand-lg px-0 shadow-none border-radius-xl mt-2">
         <div className="container-fluid d-flex justify-content-between align-items-center">
-          <img src={Logo} alt="Logo CIFPEC" style={{ height: "40px" }} />
+          <img src={siteSetting.logo ? `https://api-cifpec.xtivebiz.com/site/${siteSetting.logo}` : "./Cifpec-Logo.png"} alt="Logo CIFPEC" style={{ height: "40px" }} />
           <Link to="/login">
             <Button variant="info" className="text-white">Log masuk</Button>
           </Link>
@@ -75,11 +97,14 @@ const Homepage = () => {
       </nav>
 
       <header className="page-header min-vh-50 border-radius-xl my-3 d-flex align-items-center justify-content-center position-relative text-center text-white" style={{
-        backgroundImage: "url('/src/assets/img/bg-homepage.jpg')",
+        backgroundImage: siteSetting.banner ? `url(https://api-cifpec.xtivebiz.com/site/${siteSetting.banner})` : "url('/src/assets/img/bg-homepage.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center"
       }}>
-        <h1 className="z-1 fs-3 fs-md-1 text-white">Sistem Pengurusan Cifpec</h1>
+        <div className="z-1">
+          <h1 className="fs-3 fs-md-1 text-white">{siteSetting.textHeader || "Sistem Pengurusan Cifpec"}</h1>
+          <p className="fs-6 fw-normal text-white">{siteSetting.description || "Cari projek terbaik hasil pelajar ADTEC Melaka di sini."}</p>
+        </div>
         <span className="mask bg-gradient-dark opacity-6 position-absolute top-0 start-0 w-100 h-100"></span>
       </header>
 

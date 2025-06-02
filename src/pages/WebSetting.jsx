@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, Form, Row, Col, Image } from 'react-bootstrap';
 import Main from '../components/Main';
+import axiosInstance from '../utils/axiosInstance';
 
 export default function WebSettingComponent() {
   const [websiteTitle, setWebsiteTitle] = useState('');
@@ -9,11 +10,36 @@ export default function WebSettingComponent() {
   const [textHeader, setTextHeader] = useState('');
   const [headerDescription, setHeaderDescription] = useState('');
 
+  const fetchSettings = async () => {
+    try {
+      const res = await axiosInstance.get('/site/settings');
+      const data = res.data?.data;
+      setWebsiteTitle(data.title || '');
+      setTextHeader(data.textHeader || '');
+      setHeaderDescription(data.description || '');
+      updateDocumentMeta(data.title, data.logo);
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const updateDocumentMeta = (title, logo) => {
+    if (title) document.title = title;
+    if (logo) {
+      const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
+      favicon.rel = 'icon';
+      favicon.href = `https://api-cifpec.xtivebiz.com/site/${logo}`;
+      document.head.appendChild(favicon);
+    }
+  };
+
   const handleFileChange = (e, setter) => {
     const file = e.target.files[0];
-    if (file) {
-      setter(file);
-    }
+    if (file) setter(file);
   };
 
   const handleReset = () => {
@@ -24,14 +50,22 @@ export default function WebSettingComponent() {
     setHeaderDescription('');
   };
 
-  const handleSave = () => {
-    console.log({
-      websiteTitle,
-      logoFile,
-      bannerFile,
-      textHeader,
-      headerDescription
-    });
+  const handleSave = async () => {
+    try {
+      const form = new FormData();
+      if (logoFile) form.append('logo', logoFile);
+      if (bannerFile) form.append('banner', bannerFile);
+      form.append('title', websiteTitle);
+      form.append('textHeader', textHeader);
+      form.append('description', headerDescription);
+
+      const res = await axiosInstance.patch('/site/settings', form);
+      const updated = res.data?.data;
+      updateDocumentMeta(updated.title, updated.logo);
+      alert('Settings updated successfully');
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+    }
   };
 
   return (
