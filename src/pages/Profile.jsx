@@ -8,6 +8,7 @@ function Profile() {
   const [profileTab, setProfileTab] = useState(true);
   const [settingTab, setSettingTab] = useState(false);
   const [userData, setUserData] = useState({});
+  const [previewImage, setPreviewImage] = useState(null);
   const [formData, setFormData] = useState({
     userName: '',
     userEmail: '',
@@ -16,6 +17,7 @@ function Profile() {
     userPhoneNumber: '',
     profileImage: null
   });
+  const [formErrors, setFormErrors] = useState({});
   const [passwords, setPasswords] = useState({
     oldPassword: '',
     newPassword: '',
@@ -26,6 +28,7 @@ function Profile() {
     newPassword: false,
     repeatPassword: false
   });
+  const [showRequestButton, setShowRequestButton] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -37,24 +40,25 @@ function Profile() {
           userName: data.userName || '',
           userEmail: data.userEmail || '',
           userUsername: data.userUsername || '',
-          userGender: data.userGender 
-            ? data.userGender.charAt(0).toUpperCase() + data.userGender.slice(1).toLowerCase()
-            : '',
+          userGender: data.userGender ? data.userGender.charAt(0).toUpperCase() + data.userGender.slice(1).toLowerCase() : '',
           userPhoneNumber: data.userPhoneNumber || '',
           profileImage: null
         });
+        setShowRequestButton(false);
       } catch (err) {
         console.error('Failed to load profile:', err);
       }
     };
-
     fetchProfile();
   }, []);
 
   const handleFormChange = (e) => {
     const { name, value, files } = e.target;
+    setFormErrors({ ...formErrors, [name]: '' });
     if (name === 'profileImage') {
-      setFormData({ ...formData, profileImage: files[0] });
+      const file = files[0];
+      setFormData({ ...formData, profileImage: file });
+      setPreviewImage(URL.createObjectURL(file));
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -68,28 +72,44 @@ function Profile() {
     setShowPasswords({ ...showPasswords, [field]: !showPasswords[field] });
   };
 
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.userName) errors.userName = "Please enter your full name.";
+    if (!formData.userUsername) errors.userUsername = "Please enter a username.";
+    if (!formData.userGender) errors.userGender = "Please select your gender.";
+    if (!formData.userPhoneNumber) errors.userPhoneNumber = "Please enter your phone number.";
+    return errors;
+  };
+
   const updateProfile = async (e) => {
     e.preventDefault();
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors);
+      return;
+    }
+
+    const form = new FormData();
+    form.append('userName', formData.userName);
+    form.append('userUsername', formData.userUsername);
+    form.append('userGender', formData.userGender);
+    form.append('userPhoneNumber', formData.userPhoneNumber);
+    if (formData.profileImage instanceof File) {
+      form.append('userProfileImage', formData.profileImage);
+    }
     try {
-      console.log('formData sebelum hantar:', formData);
-
-      const form = new FormData();
-      form.append('userName', formData.userName);
-      form.append('userUsername', formData.userUsername);
-      form.append('userGender', formData.userGender);
-      form.append('userPhoneNumber', formData.userPhoneNumber);
-      if (formData.profileImage instanceof File) {
-        form.append('userProfileImage', formData.profileImage);
-      }
-
-      for (let pair of form.entries()) {
-        console.log(pair[0]+ ': ' + pair[1]);
-      }
-
       await axiosInstance.patch('/user/profile', form);
       alert('Profile updated successfully.');
+      if (userData.userRole?.roleName.toLowerCase() !== 'student' && !userData.isLecturerRequest) {
+        setShowRequestButton(true);
+      }
     } catch (err) {
-      console.error('Profile update failed:', err);
+      const errors = err.response?.data?.errors || [];
+      const newErrors = {};
+      errors.forEach((e) => {
+        newErrors[e.field] = e.message;
+      });
+      setFormErrors(newErrors);
     }
   };
 
@@ -107,8 +127,17 @@ function Profile() {
       const res = await axiosInstance.patch('/user/profile/password', payload);
       alert(res.data?.message || 'Password changed successfully.');
     } catch (err) {
-      console.error('Password change failed:', err);
       alert('Failed to change password.');
+    }
+  };
+
+  const handleRequestRole = async () => {
+    try {
+      const res = await axiosInstance.patch(`/users/${userData.userId}/lecturers?request=true`);
+      alert(res.data.message || "Request has been sent to the admin.");
+      setShowRequestButton(false);
+    } catch (error) {
+      alert("Failed to send request. Please try again.");
     }
   };
 
@@ -140,7 +169,7 @@ function Profile() {
                         <div
                           className="profile-pic mx-auto mb-3"
                           style={{
-                            backgroundImage: `url(${defaultImage})`,
+                            backgroundImage: `url(${formData.profileImage instanceof File ? URL.createObjectURL(formData.profileImage) : userData.profileImage ? userData.profileImage : defaultImage})`,
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             width: "150px",
@@ -161,6 +190,11 @@ function Profile() {
                         style={{ display: "none" }}
                         onChange={handleFormChange}
                       />
+                      {showRequestButton && (
+                        <div className="text-center mt-3">
+                          <button className="btn btn-primary" onClick={handleRequestRole}>Request</button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="col-md-8">
@@ -170,31 +204,22 @@ function Profile() {
                         </div>
                         <div className="mb-3">
                           <input type="text" className="form-control" name="userName" placeholder="Fullname" value={formData.userName} onChange={handleFormChange} />
+                          {formErrors.userName && <div style={{ color: 'red' }}>{formErrors.userName}</div>}
                         </div>
                         <div className="mb-3">
                           <input type="text" className="form-control" name="userUsername" placeholder="Username" value={formData.userUsername} onChange={handleFormChange} />
+                          {formErrors.userUsername && <div style={{ color: 'red' }}>{formErrors.userUsername}</div>}
                         </div>
                         <div className="mb-3">
                           <select className="form-select" name="userGender" value={formData.userGender} onChange={handleFormChange}>
                             <option value="">Select Gender</option>
-                            {formData.userGender === '' && (
-                              <>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                              </>
-                            )}
-                            {formData.userGender !== '' && (
-                              <>
-                                <option value={formData.userGender}>{formData.userGender}</option>
-                                {['Male', 'Female'].filter(g => g !== formData.userGender).map((g, i) => (
-                                  <option key={i} value={g}>{g}</option>
-                                ))}
-                              </>
-                            )}
+                            {['Male', 'Female'].map((g, i) => <option key={i} value={g}>{g}</option>)}
                           </select>
+                          {formErrors.userGender && <div style={{ color: 'red' }}>{formErrors.userGender}</div>}
                         </div>
                         <div className="mb-3">
                           <input type="tel" className="form-control" name="userPhoneNumber" placeholder="Phone Number" value={formData.userPhoneNumber} onChange={handleFormChange} />
+                          {formErrors.userPhoneNumber && <div style={{ color: 'red' }}>{formErrors.userPhoneNumber}</div>}
                         </div>
                         <div className="text-end">
                           <button type="submit" className="btn btn-success px-4">Save</button>
