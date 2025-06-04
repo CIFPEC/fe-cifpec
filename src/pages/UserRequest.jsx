@@ -11,7 +11,7 @@ function UserRequest() {
   useEffect(() => {
     const fetchUserRequests = async () => {
       try {
-        const res = await axiosInstance.get(`/users/lecturers?page=${currentPage}&limit=10`);
+        const res = await axiosInstance.get(`/users/lecturers?isApproved=false&page=${currentPage}&limit=10`);
         console.log("API Response:", res.data); // ✅ log response
         setUserRequests(res.data?.data || []);
         setTotalPages(res.data?.paginate?.totalPages || 1);
@@ -30,7 +30,7 @@ function UserRequest() {
   const handleApproval = async (userId, approve) => {
     try {
       const res = await axiosInstance.patch(`/users/${userId}/lecturers`, {
-        approve: approve
+        isApproved: approve
       });
       alert(res.data.message || 'Action completed successfully.');
       setUserRequests(prev => prev.filter(user => user.userId !== userId));

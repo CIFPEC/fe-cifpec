@@ -42,9 +42,20 @@ function Profile() {
           userUsername: data.userUsername || '',
           userGender: data.userGender ? data.userGender.charAt(0).toUpperCase() + data.userGender.slice(1).toLowerCase() : '',
           userPhoneNumber: data.userPhoneNumber || '',
-          profileImage: null
+          profileImage: data.userProfileImage || null
         });
-        setShowRequestButton(false);
+        console.log("DATA: ",data)
+        
+
+        if (
+          data.userRole?.roleName.toLowerCase() !== 'student' &&
+          !data.isLecturerRequest &&
+          !data.isAdminApprove
+        ) {
+          setShowRequestButton(false);
+        } else {
+          setShowRequestButton(false);
+        }
       } catch (err) {
         console.error('Failed to load profile:', err);
       }
@@ -100,7 +111,11 @@ function Profile() {
     try {
       await axiosInstance.patch('/user/profile', form);
       alert('Profile updated successfully.');
-      if (userData.userRole?.roleName.toLowerCase() !== 'student' && !userData.isLecturerRequest) {
+      if (
+        userData.userRole?.roleName.toLowerCase() !== 'student' &&
+        !userData.isLecturerRequest &&
+        !userData.isAdminApprove
+      ) {
         setShowRequestButton(true);
       }
     } catch (err) {
@@ -136,6 +151,7 @@ function Profile() {
       const res = await axiosInstance.patch(`/users/${userData.userId}/lecturers?request=true`);
       alert(res.data.message || "Request has been sent to the admin.");
       setShowRequestButton(false);
+      setUserData(prev => ({ ...prev, isLecturerRequest: true }));
     } catch (error) {
       alert("Failed to send request. Please try again.");
     }
@@ -169,7 +185,15 @@ function Profile() {
                         <div
                           className="profile-pic mx-auto mb-3"
                           style={{
-                            backgroundImage: `url(${formData.profileImage instanceof File ? URL.createObjectURL(formData.profileImage) : userData.profileImage ? userData.profileImage : defaultImage})`,
+                            backgroundImage: `url(${
+                              previewImage
+                                ? previewImage
+                                : typeof formData.profileImage === 'string'
+                                ? formData.profileImage
+                                : defaultImage
+                            })`,
+                            
+                            
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             width: "150px",
@@ -190,7 +214,7 @@ function Profile() {
                         style={{ display: "none" }}
                         onChange={handleFormChange}
                       />
-                      {showRequestButton && (
+                      {showRequestButton && !userData.isLecturerRequest && !userData.isAdminApprove && (
                         <div className="text-center mt-3">
                           <button className="btn btn-primary" onClick={handleRequestRole}>Request</button>
                         </div>
