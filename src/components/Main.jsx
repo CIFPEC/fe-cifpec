@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Nav, Navbar, NavbarCollapse, Container } from "react-bootstrap";
 import "./../assets/css/material-dashboard.css";
 import Sidebar from './Sidebar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import axiosInstance from '../utils/axiosInstance';
+import { jwtDecode } from 'jwt-decode';
 
 function Main({ children }) {
-  const [sidebarVisible, setSidebarVisible] = React.useState(false);
-  const navigate = useNavigate(); // ← Tambah ini untuk redirect
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (sidebarVisible) {
       document.body.classList.add("g-sidenav-pinned");
     } else {
@@ -16,16 +21,49 @@ function Main({ children }) {
     }
   }, [sidebarVisible]);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axiosInstance.get('/user/profile');
+        const data = res?.data?.data;
+        setUser(data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const token = localStorage.getItem('accessToken');
+  const decoded = token ? jwtDecode(token) : {};
+  const shouldShowSidebar = decoded?.roleId === 5 || decoded?.isApproved === true;
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.delete('/auth/logout');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('firstLogin');
+      window.location.href = '/login';
+    }
+  };
+
+  const currentPath = location.pathname.split('/')[2] || 'dashboard';
+  const capitalizedPath = currentPath.charAt(0).toUpperCase() + currentPath.slice(1);
+
   return (
     <>
-      <Sidebar show={sidebarVisible} />
+      {shouldShowSidebar && <Sidebar show={sidebarVisible} />}
       <main className="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
         <Navbar expand="lg" className="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
           <Container fluid className="container-fluid py-1 px-3">
             <nav aria-label="breadcrumb">
               <ol className="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
                 <li className="breadcrumb-item text-sm"><a className="opacity-5 text-dark" href="#">Pages</a></li>
-                <li className="breadcrumb-item text-sm text-dark active" aria-current="page">Dashboard</li>
+                <li className="breadcrumb-item text-sm text-dark active" aria-current="page">{capitalizedPath}</li>
               </ol>
             </nav>
             <Navbar.Collapse className="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
@@ -40,10 +78,23 @@ function Main({ children }) {
                     </div>
                   </a>
                 </li>
-                <li className="nav-item d-flex align-items-center">
-                  <a onClick={() => navigate('/dashboard/setting')} className="nav-link text-body font-weight-bold px-0" style={{ cursor: 'pointer' }}>
-                    <i className="material-symbols-rounded">account_circle</i>
-                  </a>
+                <li className="nav-item d-flex align-items-center position-relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
+                  <div className="d-flex align-items-center cursor-pointer">
+                    <a onClick={() => navigate('/dashboard/setting')} className="nav-link text-body font-weight-bold px-0">
+                      <i className="material-symbols-rounded">account_circle</i>
+                    </a>
+                    <span className="material-symbols-rounded ms-1">arrow_drop_down</span>
+                  </div>
+                  {showDropdown && !shouldShowSidebar && (
+                    <div className="position-absolute bg-white shadow-sm border rounded px-3 py-2" style={{ top: '100%', right: 0, zIndex: 1000, minWidth: '140px' }}>
+                     <button className="btn btn-sm btn-outline-dark w-100 mb-2" onClick={() => navigate('/dashboard/setting')}>
+                        Settings
+                      </button>
+                      <button className="btn btn-sm btn-dark w-100" onClick={handleLogout}>
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </li>
               </ul>
             </Navbar.Collapse>

@@ -3,7 +3,7 @@ import CFImage from './CFImage';
 import Logo from "./../assets/img/Cifpec-Logo.png";
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import axiosInstance from '../utils/axiosInstance'; // kalau belum import
+import axiosInstance from '../utils/axiosInstance';
 
 function Sidebar({ show }) {
   const [openMenus, setOpenMenus] = React.useState({});
@@ -12,7 +12,13 @@ function Sidebar({ show }) {
 
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
+  console.log('Decoded token:', decoded);
   const roleId = decoded?.roleId;
+  const isApproved = decoded?.isApproved; // guna dari token
+
+  if (roleId !== 5 && !isApproved) {
+    return null;
+  }
 
   const toggleMenu = (menuId) => {
     setOpenMenus(prev => ({ ...prev, [menuId]: !prev[menuId] }));
@@ -21,7 +27,7 @@ function Sidebar({ show }) {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.delete('/auth/logout'); // hantar request ke backend
+      await axiosInstance.delete('/auth/logout');
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
