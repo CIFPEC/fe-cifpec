@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import Main from '../components/Main';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 function StudentProject() {
   const navigate = useNavigate();
 
   const [projectName, setProjectName] = useState('');
-  const [course, setCourse] = useState('');
+  const [courseName, setCourseName] = useState('');
   const [groupMembers, setGroupMembers] = useState(['', '', '']);
   const [supervisor, setSupervisor] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [requirements, setRequirements] = useState([]);
   const [requirementValues, setRequirementValues] = useState({});
+
+  const token = localStorage.getItem('accessToken');
+  const decoded = token ? jwtDecode(token) : {};
+  const courseId = decoded?.courseId;
 
   useEffect(() => {
     const kumpulanData = JSON.parse(sessionStorage.getItem('kumpulanData'));
@@ -20,11 +25,22 @@ function StudentProject() {
       setGroupMembers(kumpulanData.groupMembers || ['', '', '']);
       setSupervisor(kumpulanData.supervisor || '');
     }
+
     const batchData = JSON.parse(sessionStorage.getItem('newBatch'));
     if (batchData && batchData.requirements) {
       setRequirements(batchData.requirements);
     }
-  }, []);
+
+    const courseList = {
+      1: 'Web Development',
+      2: 'Networking',
+      3: 'Game Development',
+      4: 'Automotive',
+      5: 'Mechatronic',
+      6: 'Manufacturing'
+    };
+    setCourseName(courseList[courseId] || '');
+  }, [courseId]);
 
   const handleRequirementChange = (label, value) => {
     setRequirementValues(prev => ({ ...prev, [label]: value }));
@@ -35,7 +51,7 @@ function StudentProject() {
     const projectList = JSON.parse(sessionStorage.getItem('projectList')) || [];
     const newProject = {
       projectName,
-      course,
+      course: courseName,
       groupMembers,
       supervisor,
       requirements: requirementValues,
@@ -45,9 +61,8 @@ function StudentProject() {
     sessionStorage.setItem('projectList', JSON.stringify(projectList));
     sessionStorage.removeItem('kumpulanData');
     setIsSubmitted(true);
-    navigate('/dashboard/projectlist'); // ⬅️ Tambah line ini
+    navigate('/dashboard/projectlist');
   };
-  
 
   return (
     <Main>
@@ -55,7 +70,7 @@ function StudentProject() {
         <div className="row justify-content-center">
           <div className="col-12 col-md-10 col-lg-8">
             <div className="tab-pane fade show active shadow p-4 rounded bg-white">
-              <h5 className="fw-bold">Maklumat Projek</h5>
+              <h5 className="fw-bold">Update Projek</h5>
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
@@ -69,19 +84,12 @@ function StudentProject() {
                     />
                   </div>
                   <div className="col-md-6 mb-3">
-                    <select
-                      className="form-select"
-                      value={course}
-                      onChange={(e) => setCourse(e.target.value)}
-                      disabled={isSubmitted}
-                    >
-                      <option value="">Kursus</option>
-                      <option value="Automotif">Automotif</option>
-                      <option value="IT">IT</option>
-                      <option value="Meka">Meka</option>
-                      <option value="Pembuatan">Pembuatan</option>
-                      <option value="Telekomunikasi">Telekomunikasi</option>
-                    </select>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={courseName}
+                      readOnly
+                    />
                   </div>
                   {groupMembers.map((member, index) => (
                     <div className="col-md-6 mb-3" key={index}>
@@ -90,12 +98,7 @@ function StudentProject() {
                         className="form-control"
                         placeholder={`Nama Ahli ${index + 1}`}
                         value={member}
-                        onChange={(e) => {
-                          const updated = [...groupMembers];
-                          updated[index] = e.target.value;
-                          setGroupMembers(updated);
-                        }}
-                        readOnly={isSubmitted}
+                        readOnly
                       />
                     </div>
                   ))}
@@ -105,8 +108,7 @@ function StudentProject() {
                       className="form-control"
                       placeholder="Nama Penyelia"
                       value={supervisor}
-                      onChange={(e) => setSupervisor(e.target.value)}
-                      readOnly={isSubmitted}
+                      readOnly
                     />
                   </div>
                 </div>
