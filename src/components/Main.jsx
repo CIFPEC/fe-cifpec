@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
+import defaultProfile from "./../assets/img/pic-icon.png";
 
 function Main({ children }) {
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -51,6 +52,15 @@ function Main({ children }) {
     }
   };
 
+  const handleHeaderDropdown = (params=null) => {
+    if (params?.target?.title === "menu"){
+      return setShowDropdown(!showDropdown);
+    }
+    if(typeof params === 'boolean') {
+      return setShowDropdown(params);
+    }
+  };
+
   const currentPath = location.pathname.split('/')[2] || 'dashboard';
   const capitalizedPath = currentPath.charAt(0).toUpperCase() + currentPath.slice(1);
 
@@ -62,7 +72,7 @@ function Main({ children }) {
           <Container fluid className="container-fluid py-1 px-3">
             <nav aria-label="breadcrumb">
               <ol className="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-                <li className="breadcrumb-item text-sm"><a className="opacity-5 text-dark" href="#">Pages</a></li>
+                <li className="breadcrumb-item text-sm"><a className="opacity-5 text-dark" href="#">Dashboard</a></li>
                 <li className="breadcrumb-item text-sm text-dark active" aria-current="page">{capitalizedPath}</li>
               </ol>
             </nav>
@@ -78,15 +88,12 @@ function Main({ children }) {
                     </div>
                   </a>
                 </li>
-                <li className="nav-item d-flex align-items-center position-relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
+                <li className="nav-item d-flex align-items-center position-relative" >
                   <div className="d-flex align-items-center cursor-pointer">
-                    <a onClick={() => navigate('/dashboard/setting')} className="nav-link text-body font-weight-bold px-0">
-                      <i className="material-symbols-rounded">account_circle</i>
-                    </a>
-                    <span className="material-symbols-rounded ms-1">arrow_drop_down</span>
+                    <span className="avatar avatar-sm rounded-circle me-2 border" style={{ backgroundImage: `url(${user?.userProfileImage ? user?.userProfileImage : defaultProfile})`, width: '30px', height: '30px', borderRadius: '50%', backgroundSize: 'cover' }} title='menu' onClick={(e) => handleHeaderDropdown(e)}></span>
                   </div>
-                  {showDropdown && !shouldShowSidebar && (
-                    <div className="position-absolute bg-white shadow-sm border rounded px-3 py-2" style={{ top: '100%', right: 0, zIndex: 1000, minWidth: '140px' }}>
+                  {showDropdown && (
+                    <div className="position-absolute bg-white shadow-sm border rounded px-3 py-2 w-50" style={{ top: '100%', right: 0, zIndex: 1000, minWidth: '200px'}}>
                      <button className="btn btn-sm btn-outline-dark w-100 mb-2" onClick={() => navigate('/dashboard/setting')}>
                         Settings
                       </button>
@@ -101,7 +108,7 @@ function Main({ children }) {
           </Container>
         </Navbar>
 
-        <div className="container-fluid px-3 px-md-4 py-3" style={{ minHeight: '100vh', overflowX: 'hidden' }}>
+        <div className="container-fluid px-3 px-md-4 py-3" style={{ minHeight: '100vh', overflowX: 'hidden' }} onClick={() => handleHeaderDropdown(false)}>
           {children}
         </div>
       </main>

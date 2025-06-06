@@ -96,7 +96,10 @@ function ProjectList() {
   };
   
 
-  const handleViewProject = (project) => setViewProject(project);
+  const handleViewProject = (project) => {
+    console.log(project)
+    setViewProject(project)
+  };
   const handleCloseViewModal = () => setViewProject(null);
 
   return (
@@ -215,11 +218,11 @@ function ProjectList() {
                 <p><strong>Project Name:</strong> {viewProject.projectName}</p>
                 <p><strong>Group Members:</strong></p>
                 <ul>
-                  {viewProject.groupMembers.map((member, idx) => (
-                    <li key={idx}>{member}</li>
+                  {viewProject.projectTeamMembers.map((member, idx) => (
+                    <li key={idx}>{member.userName}</li>
                   ))}
                 </ul>
-                <p><strong>Supervisor:</strong> {viewProject.supervisor || '-'}</p>
+                <p><strong>Supervisor:</strong> {viewProject.courseSupervisorName || '-'}</p>
                 <p><strong>Status:</strong> {viewProject.status}</p>
               </div>
             )}
