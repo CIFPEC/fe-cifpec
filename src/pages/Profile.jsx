@@ -44,9 +44,7 @@ function Profile() {
           userPhoneNumber: data.userPhoneNumber || '',
           profileImage: data.userProfileImage || null
         });
-        console.log("DATA: ",data)
         
-
         if (
           data.userRole?.roleName.toLowerCase() !== 'student' &&
           !data.isLecturerRequest &&

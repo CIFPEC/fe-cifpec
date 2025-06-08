@@ -1,12 +1,13 @@
 // Updated Auth.jsx with red text error messages only
 import React, { useState, useEffect } from 'react';
 import "./../assets/css/login.css";
-import Logo from "./../assets/img/Cifpec-Logo.png";
+import DefaultLogo from "./../assets/img/Cifpec-Logo.png";
 import { Form, Button, Image, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 import { Eye, EyeOff } from 'lucide-react';
+import Loading from '../components/Loading';
 
 function Auth() {
   const [tabs, setTabs] = useState({ login: { status: "active", display: "d-block" }, register: { status: "", display: "d-none" } });
@@ -19,6 +20,8 @@ function Auth() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showRetypePassword, setShowRetypePassword] = useState(false);
+  const [Site, setSite] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +35,16 @@ function Auth() {
         navigate('/dashboard/setting');
       }
     }
+    const fetchSite = async () => {
+      try {
+        const res = await axiosInstance.get("/site/settings");
+        setSite(res?.data?.data || {});
+        setIsLoading(false);
+      } catch (err) {
+        console.log("ERROR: ",err);
+      }
+    };
+    fetchSite();
   }, []);
 
   useEffect(() => {
@@ -45,6 +58,10 @@ function Auth() {
     };
     fetchCourses();
   }, []);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   const handleLoginInput = (e) => setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
   const handleRegisterInput = (e) => setRegisterForm({ ...registerForm, [e.target.name]: e.target.value });
@@ -172,7 +189,7 @@ function Auth() {
     <div className="auth d-flex justify-content-center align-items-center p-3" style={{ backgroundImage: `url('/bg-login.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
       <div className="form-box glass-box w-100" style={{ maxWidth: '500px' }}>
         <div className="auth-logo text-center">
-          <Image src={Logo} alt="CIFPEC Logo" className="img-fluid" style={{ maxWidth: '180px' }} />
+          <Image src={Site.logo ? Site.logo : DefaultLogo} alt={`${Site.title} Logo`} className="img-fluid" style={{ maxWidth: '180px' }} />
         </div>
 
         <div className="d-flex mb-4">

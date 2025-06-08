@@ -2,22 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Form, Row, Col, Image } from 'react-bootstrap';
 import Main from '../components/Main';
 import axiosInstance from '../utils/axiosInstance';
+import Loading from '../components/Loading';
+import { useNavigate } from "react-router-dom";
+
 
 export default function WebSettingComponent() {
   const [websiteTitle, setWebsiteTitle] = useState('');
   const [logoFile, setLogoFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
+  const [Site, setSite] = useState(null);
   const [textHeader, setTextHeader] = useState('');
   const [headerDescription, setHeaderDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  
 
   const fetchSettings = async () => {
     try {
       const res = await axiosInstance.get('/site/settings');
-      const data = res.data?.data;
+      const data = res?.data?.data;
       setWebsiteTitle(data.title || '');
       setTextHeader(data.textHeader || '');
       setHeaderDescription(data.description || '');
       updateDocumentMeta(data.title, data.logo);
+      setSite(data);
+      setIsLoading(false);
     } catch (err) {
       console.error('Failed to load settings:', err);
     }
@@ -26,6 +35,8 @@ export default function WebSettingComponent() {
   useEffect(() => {
     fetchSettings();
   }, []);
+
+  if(isLoading) return <Loading />;
 
   const updateDocumentMeta = (title, logo) => {
     if (title) document.title = title;
@@ -62,7 +73,7 @@ export default function WebSettingComponent() {
       const res = await axiosInstance.patch('/site/settings', form);
       const updated = res.data?.data;
       updateDocumentMeta(updated.title, updated.logo);
-      alert('Settings updated successfully');
+      navigate(0);
     } catch (err) {
       console.error('Failed to save settings:', err);
     }
@@ -91,15 +102,34 @@ export default function WebSettingComponent() {
                   <Form.Group>
                     <Form.Label>Upload Logo</Form.Label>
                     <Form.Control type="file" onChange={(e) => handleFileChange(e, setLogoFile)} />
-                    {logoFile && (
-                      <Image
-                        src={URL.createObjectURL(logoFile)}
-                        alt="Logo Preview"
-                        className="mt-2"
-                        style={{ height: '60px' }}
-                        fluid
-                      />
-                    )}
+                    {(logoFile || Site?.logo) ? (
+                      <div className="d-flex">
+                        {logoFile && (
+                          <div className="d-flex flex-column align-items-center w-30">
+                            <Image
+                              src={logoFile && URL.createObjectURL(logoFile)}
+                              alt="Logo Preview"
+                              className="mt-2"
+                              style={{ width: '80px' }}
+                              fluid
+                            />
+                            <span>New Logo</span>
+                          </div>
+                        )}
+                        {Site?.logo && (
+                          <span className="d-flex flex-column align-items-center w-30">
+                            <Image
+                              src={Site?.logo}
+                              alt="Logo Preview"
+                              className="mt-2 ms-2"
+                              style={{ width: '80px' }}
+                              fluid
+                              />
+                            <span className="text-center">Old Logo</span>
+                          </span>
+                        )}
+                      </div>
+                    ):null}
                   </Form.Group>
                 </Col>
               </Row>

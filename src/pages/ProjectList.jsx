@@ -5,6 +5,7 @@ import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axiosInstance from '../utils/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
+import Loading from '../components/Loading';
 
 
 function ProjectList() {
@@ -19,7 +20,7 @@ function ProjectList() {
   const [supervisor, setSupervisor] = useState('');
   const [error, setError] = useState('');
   const [hasProject, setHasProject] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -55,13 +56,14 @@ function ProjectList() {
         console.log("ERROR FETCH:", err)
         setError('Failed to fetch data');
       } finally {
-        setLoading(false); // ← letak kat sini supaya dia jalan sama ada success atau error
+        setTimeout(() => { setIsLoading(false) }, 1000)
       }
     };
 
     fetchData();
   }, [location]);
 
+  if(isLoading) return <Loading />
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -130,10 +132,10 @@ function ProjectList() {
             <div className="card p-4 shadow-sm">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
                 <h6 className="fw-bold mb-3 mb-md-0">
-                  Project List{currentUser?.userCourse?.courseName ?  `- ${currentUser.userCourse.courseName}` : ''}
+                  Project List{currentUser?.userCourse?.courseName ?  ` - ${currentUser.userCourse.courseName}` : ''}
                 </h6>
                 <div className="d-flex flex-md-row flex-column align-items-md-center gap-2 w-100 w-md-auto mt-3">
-                  {!loading && roleId === 5 && !hasProject && (
+                  {roleId === 5 && !hasProject && (
                     <button onClick={handleOpenModal} className="btn btn-info w-100 w-md-auto px-4 py-2">Create New</button>
                   )}
 

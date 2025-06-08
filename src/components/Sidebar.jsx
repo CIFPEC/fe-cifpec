@@ -1,20 +1,41 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 import CFImage from './CFImage';
-import Logo from "./../assets/img/Cifpec-Logo.png";
+import DefaultLogo from "./../assets/img/Cifpec-Logo.png";
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../utils/axiosInstance';
+import Loading from "./Loading";
 
 function Sidebar({ show }) {
-  const [openMenus, setOpenMenus] = React.useState({});
-  const [activeMenu, setActiveMenu] = React.useState(null);
+  const [openMenus, setOpenMenus] = useState({});
+  const [activeMenu, setActiveMenu] = useState(null);
+  const [Site,setSite] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
-  console.log('Decoded token:', decoded);
   const roleId = decoded?.roleId;
   const isApproved = decoded?.isApproved; // guna dari token
+
+  useEffect(() => {
+    const fetchSite = async () => {
+      try {
+        const res = await axiosInstance.get("/site/settings");
+        setSite(res?.data?.data || {});
+        setTimeout(() => {
+          setIsLoading(false);
+        },1000)
+      } catch (err) {
+        console.log("ERROR: ",err);
+      }
+    };
+    fetchSite();
+  }, []);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   if (roleId !== 5 && !isApproved) {
     return null;
@@ -74,7 +95,7 @@ function Sidebar({ show }) {
     <aside className={`sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2`} id="sidenav-main">
       <div className="sidenav-header">
         <Link to="/dashboard" className="logo cursor-pointer">
-          <CFImage src={Logo} alt="Cifpec Logo" width="100px" className="text-center mt-3" />
+          <CFImage src={!isLoading && Site?.logo ? Site?.logo : DefaultLogo} alt={`${Site.title} Logo`} width='100px' className="text-center mt-3" />
         </Link>
       </div>
       <hr className="horizontal dark mt-0 mb-2" />
