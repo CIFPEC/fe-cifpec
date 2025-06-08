@@ -1,36 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import Main from '../components/Main';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../utils/axiosInstance';
 
 function StudentProject() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const projectId = queryParams.get('projectId');
 
   const [projectName, setProjectName] = useState('');
   const [courseName, setCourseName] = useState('');
   const [groupMembers, setGroupMembers] = useState(['', '', '']);
   const [supervisor, setSupervisor] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [requirements, setRequirements] = useState([]);
+  const [batchRequirements, setBatchRequirements] = useState([]);
   const [requirementValues, setRequirementValues] = useState({});
+  const [oldRequirements, setOldRequirements] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
   const courseId = decoded?.courseId;
+  const batchId = decoded?.batchId;
 
   useEffect(() => {
-    const kumpulanData = JSON.parse(sessionStorage.getItem('kumpulanData'));
-    if (kumpulanData) {
-      setProjectName(kumpulanData.projectName || '');
-      setGroupMembers(kumpulanData.groupMembers || ['', '', '']);
-      setSupervisor(kumpulanData.supervisor || '');
-    }
-
-    const batchData = JSON.parse(sessionStorage.getItem('newBatch'));
-    if (batchData && batchData.requirements) {
-      setRequirements(batchData.requirements);
-    }
-
     const courseList = {
       1: 'Web Development',
       2: 'Networking',
@@ -40,28 +35,73 @@ function StudentProject() {
       6: 'Manufacturing'
     };
     setCourseName(courseList[courseId] || '');
-  }, [courseId]);
 
-  const handleRequirementChange = (label, value) => {
-    setRequirementValues(prev => ({ ...prev, [label]: value }));
+    if (projectId) {
+      setIsEditMode(true);
+      const getProject = async () => {
+        try {
+          const res = await axiosInstance.get('/user/projects');
+          const allProjects = res?.data?.data || [];
+          const project = allProjects.find(p => String(p.projectId) === String(projectId));
+  
+          if (project) {
+            setProjectName(project.projectName);
+            setGroupMembers(project.projectTeamMembers.map(m => m.userName || ''));
+            setSupervisor(project.courseSupervisorName || '');
+            setOldRequirements(project?.projectRequirements || []);
+            // console.log("PROJECTS: ",project.projectRequirements)
+          }
+        } catch (error) {
+          console.error('Error fetching user projects:', err);
+        }
+      }
+      getProject();
+    }
+
+    const batch = async () => {
+      const res = await axiosInstance.get(`/batches/${batchId}`);
+      // console.log("BATCH: ",res?.data?.data?.projectRequirements)
+      setBatchRequirements(res?.data?.data?.projectRequirements)
+    }
+    batch();
+  }, [courseId, projectId]);
+
+  const handleRequirementChange = (e) => {
+    const { name, value, files } = e.target;
+    if (files) {
+      // Jika input type adalah file, simpan file tersebut
+      setRequirementValues(formData => ({
+        ...formData,
+        [name]: files[0], // Ambil file pertama yang dipilih
+      }));
+    } else {
+      // Jika bukan file, simpan value seperti biasa
+      setRequirementValues(formData => ({
+        ...formData,
+        [name]: value === '' ? "" : value,
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const projectList = JSON.parse(sessionStorage.getItem('projectList')) || [];
-    const newProject = {
-      projectName,
-      course: courseName,
-      groupMembers,
-      supervisor,
-      requirements: requirementValues,
-      status: 'Dalam Proses'
-    };
-    projectList.push(newProject);
-    sessionStorage.setItem('projectList', JSON.stringify(projectList));
-    sessionStorage.removeItem('kumpulanData');
-    setIsSubmitted(true);
-    navigate('/dashboard/projectlist');
+    // Create FormData object untuk simpan data
+    const formDataToSend = new FormData();
+
+    // Loop untuk masuk semua data ke dalam FormData
+    Object.keys(requirementValues).forEach((key) => {
+      const value = requirementValues[key];
+      if (value) {
+        formDataToSend.append(`requirements[${key}]`, value);
+      }
+    });
+    try {
+      await axiosInstance.patch(`/user/projects/${projectId}`, formDataToSend);
+      setIsSubmitted(true);
+      navigate('/dashboard/projectlist');
+    } catch (err) {
+      console.error('Error updating project:', err);
+    }
   };
 
   return (
@@ -79,8 +119,8 @@ function StudentProject() {
                       className="form-control"
                       placeholder="Nama Projek"
                       value={projectName}
-                      onChange={(e) => setProjectName(e.target.value)}
-                      readOnly={isSubmitted}
+                      // onChange={(e) => setProjectName(e.target.value)}
+                      readOnly
                     />
                   </div>
                   <div className="col-md-6 mb-3">
@@ -113,29 +153,31 @@ function StudentProject() {
                   </div>
                 </div>
 
-                {/* Dynamic Requirement Fields */}
-                {requirements.length > 0 && (
+                {batchRequirements.length > 0 && (
                   <div className="mt-4">
                     <h6 className="fw-bold">Maklumat Tambahan</h6>
-                    {requirements.map((req, index) => (
+                    {batchRequirements.map((req, index) => (
                       <div className="mb-3" key={index}>
-                        <label className="form-label fw-bold">{req.name}</label>
+                        <label className="form-label fw-bold">{req.label}</label>
                         {req.type === 'text' ? (
                           <input
                             type="text"
                             className="form-control"
-                            placeholder={`Isi ${req.name}`}
-                            value={requirementValues[req.name] || ''}
-                            onChange={(e) => handleRequirementChange(req.name, e.target.value)}
-                            readOnly={isSubmitted}
+                            placeholder={`Isi ${req.label}`}
+                            value={requirementValues[req.tag] || 
+                              oldRequirements.find(field => field.fieldName === req.label)?.fieldValue || ''}
+                            name={req.tag}
+                            onChange={(e) => handleRequirementChange(e)}
+                            // readOnly={!isEditMode && isSubmitted}
                           />
                         ) : (
                           <input
                             type="file"
                             className="form-control"
                             accept=".pdf"
-                            onChange={(e) => handleRequirementChange(req.name, e.target.files[0])}
-                            disabled={isSubmitted}
+                            name={req.tag}
+                            onChange={(e) => handleRequirementChange(e)}
+                            disabled={!isEditMode && isSubmitted}
                           />
                         )}
                       </div>
@@ -147,7 +189,7 @@ function StudentProject() {
                   <button type="button" className="btn btn-outline-secondary" onClick={() => navigate('/dashboard/projectlist')}>
                     Back to Project List
                   </button>
-                  <button type="submit" className="btn btn-success px-4" disabled={isSubmitted}>
+                  <button type="submit" className="btn btn-success px-4" disabled={!isEditMode && isSubmitted}>
                     Submit
                   </button>
                 </div>

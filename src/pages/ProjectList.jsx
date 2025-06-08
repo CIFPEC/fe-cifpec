@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axiosInstance from '../utils/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
+import { useLocation } from 'react-router-dom';
+
 
 function ProjectList() {
   const [projects, setProjects] = useState([]);
@@ -16,18 +18,24 @@ function ProjectList() {
   const [groupMembers, setGroupMembers] = useState([]);
   const [supervisor, setSupervisor] = useState('');
   const [error, setError] = useState('');
+  const [hasProject, setHasProject] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
 
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
   const courseId = decoded?.courseId;
   const userId = decoded?.userId;
   const batchId = decoded?.batchId;
+  const roleId = decoded?.roleId;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const resProjects = await axiosInstance.get(`/user/projects`);
+        // console.log("PROJECT: ",resProjects?.data?.data)
         setProjects(resProjects?.data?.data || null);
 
         const resStudents = await axiosInstance.get(`/users/students?course=${courseId}`);
@@ -39,14 +47,21 @@ function ProjectList() {
 
         const getUser = await axiosInstance.get('/user/profile');
         setCurrentUser(getUser?.data?.data || {});
+        if (decoded?.roleId === 5) {
+          const resCheck = await axiosInstance.get(`/user/projects`);
+          setHasProject(resCheck?.data?.data?.length > 0); // pelajar ada projek ke tak
+        }
       } catch (err) {
-        console.log("ERROE FETCH:",err)
+        console.log("ERROR FETCH:", err)
         setError('Failed to fetch data');
+      } finally {
+        setLoading(false); // ← letak kat sini supaya dia jalan sama ada success atau error
       }
     };
 
     fetchData();
-  }, [courseId, userId]);
+  }, [location]);
+
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -55,51 +70,56 @@ function ProjectList() {
       setError('Please complete all fields.');
       return;
     }
-  
+
     const hasDuplicate = new Set(groupMembers).size !== groupMembers.length;
     if (hasDuplicate) {
       setError('Group members must be unique.');
       return;
     }
-  
+
     const selectedStudentIds = groupMembers.map(name => {
       const student = students.find(s => s.userName === name);
       return student?.userId;
     }).filter(Boolean);
 
-    
+
     const supervisorObj = supervisors.find(s => s.userName === supervisor);
     if (!supervisorObj) {
       setError('Invalid supervisor selected.');
       return;
-    
+
     }
-  
+
     const data = {
       projectName,
       supervisorId: supervisorObj.userId,
       teams: selectedStudentIds,
     };
-  
+
     try {
       const response = await axiosInstance.post('/projects', data);
       const newProjectId = response?.data?.data?.projectId;
       navigate(`/dashboard/studentproject?projectId=${newProjectId}`);
     } catch (err) {
       console.error('❌ Create project error:', err?.response?.data || err.message);
-      if(err?.response?.data?.errors?.length > 0){
+      if (err?.response?.data?.errors?.length > 0) {
         const error = err?.response?.data?.errors[0].message;
         return setError(error);
       }
       setError(err.response?.data?.message || 'Gagal cipta projek. Sila semak semula.');
     }
   };
-  
+
 
   const handleViewProject = (project) => {
     console.log(project)
     setViewProject(project)
   };
+
+  const handleEditProject = (projectId) => {
+    navigate(`/dashboard/studentproject?projectId=${projectId}`);
+  };
+
   const handleCloseViewModal = () => setViewProject(null);
 
   return (
@@ -109,9 +129,15 @@ function ProjectList() {
           <div className="col-12 col-lg-10">
             <div className="card p-4 shadow-sm">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-                <h6 className="fw-bold mb-3 mb-md-0">Project List (Based on Your Course)</h6>
+                <h6 className="fw-bold mb-3 mb-md-0">
+                  Project List{currentUser?.userCourse?.courseName ?  `- ${currentUser.userCourse.courseName}` : ''}
+                </h6>
                 <div className="d-flex flex-md-row flex-column align-items-md-center gap-2 w-100 w-md-auto mt-3">
-                  <button onClick={handleOpenModal} className="btn btn-danger w-100 w-md-auto px-4 py-2">Create New</button>
+                  {!loading && roleId === 5 && !hasProject && (
+                    <button onClick={handleOpenModal} className="btn btn-info w-100 w-md-auto px-4 py-2">Create New</button>
+                  )}
+
+
                 </div>
               </div>
 
@@ -135,8 +161,12 @@ function ProjectList() {
                           <td>{proj.projectName}</td>
                           <td>{proj.penyelaras || '-'}</td>
                           <td>{proj.penyelia || proj.supervisor || '-'}</td>
-                          <td>{proj.status || 'In Progress'}</td>
-                          <td><button className="btn btn-sm btn-outline-primary" onClick={() => handleViewProject(proj)}>View</button></td>
+                          <td>{proj.isFinal === false ? 'In Progress' : 'Final'}</td>
+                          <td>
+                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleViewProject(proj)}>View</button>
+                            <button className="btn btn-sm btn-outline-success" onClick={() => handleEditProject(proj.projectId)}>Edit</button>
+                          </td>
+
                         </tr>
                       ))
                     )}
@@ -170,7 +200,7 @@ function ProjectList() {
               </Form.Group>
               <Form.Label>Group Members</Form.Label>
               <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Your Name" value={currentUser.userName} readOnly/>
+                <Form.Control type="text" placeholder="Your Name" value={currentUser.userName} readOnly />
               </Form.Group>
               {[1, 2].map((i) => (
                 <Form.Group className="mb-2" key={i}>
@@ -223,7 +253,14 @@ function ProjectList() {
                   ))}
                 </ul>
                 <p><strong>Supervisor:</strong> {viewProject.courseSupervisorName || '-'}</p>
-                <p><strong>Status:</strong> {viewProject.status}</p>
+                <p><strong>Status:</strong> {viewProject.isFinal === false ? 'in Progress' : 'Final'}</p>
+                {viewProject.projectRequirements.map((req,idx)=>(
+                  req.fieldType === "file" ? (
+                    <p key={idx}><strong>{req.fieldName}:</strong> <a href={req.fieldValue} target="_blank">View</a></p>
+                  ):(
+                    <p key={idx}><strong>{req.fieldName}:</strong> {req.fieldValue}</p>
+                  )
+                ))}
               </div>
             )}
           </Modal.Body>
