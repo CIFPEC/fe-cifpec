@@ -29,6 +29,7 @@ const Homepage = () => {
         })) || [];
         setProjekList(mappedProjects);
         setHasilCari(mappedProjects);
+        console.log("PROJECTS:", mappedProjects);
       } catch (err) {
         console.error("Failed to fetch archived projects", err);
       }
@@ -134,7 +135,7 @@ const Homepage = () => {
                   className="card-header p-0 m-2 position-relative"
                   style={{
                     height: "200px",
-                    backgroundImage: `url(${projek.gambar})`,
+                    backgroundImage: `url('${projek.gambar}')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     borderRadius: "1rem"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from './../utils/axiosInstance';
 
 export default function VerifyEmailPage() {
   const location = useLocation();
@@ -30,8 +30,7 @@ export default function VerifyEmailPage() {
         userEmail: email,
         verifyCode: inputCode
       };
-      console.log("Payload ke backend:", payload);
-      const res = await axios.post('/auth/email/verify', payload, {
+      const res = await axiosInstance.post('/auth/email/verify', payload, {
         headers: { 'Verify-Token': verifyToken }
       });
       setMessage('Verification successful! Your email has been verified.');
@@ -44,7 +43,7 @@ export default function VerifyEmailPage() {
 
   const requestNewCode = async () => {
     try {
-      const res = await axios.post('/auth/email/verify/request', { userEmail: email });
+      const res = await axiosInstance.post("/auth/email/verify/request", { userEmail: email });
       const newToken = res.data?.data?.verifyToken || '';
       setVerifyToken(newToken);
       setCountdown(60);
