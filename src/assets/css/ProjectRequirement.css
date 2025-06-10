@@ -1,0 +1,45 @@
+@media (max-width: 768px) {
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        border: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .table tbody td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        width: 50%;
+        display: inline-block;
+    }
+
+        @media (max-width: 768px) {
+            .table tbody td[data-label="Action"] {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            .table tbody td[data-label="Action"] button {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+}

@@ -16,7 +16,7 @@ function Sidebar({ show }) {
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
   const roleId = decoded?.roleId;
-  const isApproved = decoded?.isApproved; // guna dari token
+  const isApproved = decoded?.isApproved;
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -63,9 +63,10 @@ function Sidebar({ show }) {
     {
       id: "projects",
       label: "Projects",
-      show: [1, 2, 3, 4, 5].includes(roleId),
+      show: [1, 3, 4, 5].includes(roleId),
       items: [
         { label: "Project Lists", link: "/dashboard/projectlist" },
+        ...(roleId === 1 ? [{ label: "Project Lists (Admin)", link: "/dashboard/projectrequirement" }] : [])
       ],
     },
     {
@@ -160,10 +161,10 @@ function Sidebar({ show }) {
       <div className="sidenav-footer position-absolute w-100 bottom-0 ">
         <div className="mx-3">
           <Link to="/dashboard/setting" className="btn btn-outline-dark mt-4 w-100">
-            Profil Pengguna
+            User Profile
           </Link>
           <button className="btn bg-gradient-dark w-100 mt-2" onClick={handleLogout}>
-            Log Keluar
+            Logout
           </button>
         </div>
       </div>

@@ -23,8 +23,7 @@ export default function WebSettingComponent() {
       const data = res?.data?.data;
       setWebsiteTitle(data.title || '');
       setTextHeader(data.textHeader || '');
-      setHeaderDescription(data.description || '');
-      updateDocumentMeta(data.title, data.logo);
+      setHeaderDescription(data.description || '')
       setSite(data);
       setIsLoading(false);
     } catch (err) {
@@ -38,15 +37,6 @@ export default function WebSettingComponent() {
 
   if(isLoading) return <Loading />;
 
-  const updateDocumentMeta = (title, logo) => {
-    if (title) document.title = title;
-    if (logo) {
-      const favicon = document.querySelector('link[rel="icon"]') || document.createElement('link');
-      favicon.rel = 'icon';
-      favicon.href = `https://api-cifpec.xtivebiz.com/site/${logo}`;
-      document.head.appendChild(favicon);
-    }
-  };
 
   const handleFileChange = (e, setter) => {
     const file = e.target.files[0];

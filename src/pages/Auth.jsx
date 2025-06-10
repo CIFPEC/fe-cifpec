@@ -41,7 +41,7 @@ function Auth() {
         setSite(res?.data?.data || {});
         setIsLoading(false);
       } catch (err) {
-        console.log("ERROR: ",err);
+        console.log("ERROR: ", err);
       }
     };
     fetchSite();
@@ -87,6 +87,7 @@ function Auth() {
     if (!loginForm.password) newErrors.password = "Please enter your password.";
     if (Object.keys(newErrors).length > 0) { setLoginErrors(newErrors); return; }
 
+
     try {
       const res = await axiosInstance.post('/auth/login', {
         userEmail: loginForm.email,
@@ -113,9 +114,12 @@ function Auth() {
       } else if (res?.message) {
         if (res.message.toLowerCase().includes("password")) errorsObj.password = res.message;
         else errorsObj.email = res.message;
+      } else {
+        errorsObj.email = "Something went wrong. Please try again."; // ← fallback ni tak salah, tapi errorsObj tu yang belum wujud
       }
       setLoginErrors(errorsObj);
     }
+
   };
 
   const onRegister = async (e) => {
@@ -161,7 +165,7 @@ function Auth() {
 
   const showCourseDropdown = ["Student", "Supervisor", "Coordinator"].includes(registerForm.role);
 
-  const renderPasswordInput = (value, onChange, show, toggle, name, placeholder, error) => (
+  const renderPasswordInput = ({ value, name, placeholder, error, show, toggle, onChange }) => (
     <div className="mb-3 position-relative">
       <div className="d-flex align-items-center position-relative">
         <Form.Control
@@ -185,6 +189,8 @@ function Auth() {
     </div>
   );
 
+
+
   return (
     <div className="auth d-flex justify-content-center align-items-center p-3" style={{ backgroundImage: `url('/bg-login.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
       <div className="form-box glass-box w-100" style={{ maxWidth: '500px' }}>
@@ -202,7 +208,16 @@ function Auth() {
             <Form.Control type="email" placeholder="Email or Username" name="email" className="form-login" value={loginForm.email} onChange={handleLoginInput} style={loginErrors.email ? { borderColor: 'red' } : {}} />
             {loginErrors.email && <div style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>{loginErrors.email}</div>}
           </div>
-          {renderPasswordInput(loginForm.password, handleLoginInput, showPassword, () => setShowPassword(!showPassword), "password", "Password", loginErrors.password)}
+          {renderPasswordInput({
+            value: loginForm.password,
+            name: "password",
+            placeholder: "Password",
+            error: loginErrors.password,
+            show: showPassword,
+            toggle: () => setShowPassword(!showPassword),
+            onChange: handleLoginInput,
+          })}
+
           <Button type="submit" className="w-100 py-2 btn-purple">SIGN IN</Button>
         </Form>
 
@@ -211,8 +226,26 @@ function Auth() {
             <Form.Control type="email" placeholder="Email" name="email" className="form-login" value={registerForm.email} onChange={handleRegisterInput} style={registerErrors.email ? { borderColor: 'red' } : {}} />
             {registerErrors.email && <div style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.25rem' }}>{registerErrors.email}</div>}
           </div>
-          {renderPasswordInput(registerForm.password, handleRegisterInput, showPassword, () => setShowPassword(!showPassword), "password", "Password", registerErrors.password)}
-          {renderPasswordInput(registerForm.retypePassword, handleRegisterInput, showRetypePassword, () => setShowRetypePassword(!showRetypePassword), "retypePassword", "Confirm Password", registerErrors.retypePassword)}
+          {renderPasswordInput({
+            value: registerForm.password,
+            name: "password",
+            placeholder: "Enter your password",
+            error: registerErrors.password,
+            show: showPassword,
+            toggle: () => setShowPassword(!showPassword),
+            onChange: handleRegisterInput
+          })}
+
+          {renderPasswordInput({
+            value: registerForm.retypePassword,
+            name: "retypePassword",
+            placeholder: "Confirm your password",
+            error: registerErrors.retypePassword,
+            show: showRetypePassword,
+            toggle: () => setShowRetypePassword(!showRetypePassword),
+            onChange: handleRegisterInput
+          })}
+
           <div className="mb-3">
             <Form.Select name="role" value={registerForm.role} onChange={handleRegisterInput} className="form-login" style={registerErrors.role ? { borderColor: 'red' } : {}}>
               <option value="">-- Select Role --</option>

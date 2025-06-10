@@ -1,7 +1,45 @@
-import React from 'react'
-import Main from '../components/Main'
+import React, { useEffect, useState } from 'react';
+import Main from '../components/Main';
+import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../utils/axiosInstance';
+import { Button, Modal } from 'react-bootstrap';
+import './../assets/css/ProjectRequirement.css';
 
 function ProjectRequirement() {
+  const [projects, setProjects] = useState([]);
+  const [viewProject, setViewProject] = useState(null);
+  const token = localStorage.getItem('accessToken');
+  const decoded = token ? jwtDecode(token) : {};
+  const batchId = decoded?.batchId;
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axiosInstance.get(`/batches/1/projects?page=1&limit=10`); // hardcoded batchId = 1
+        setProjects(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  const handleApprove = async (projectId) => {
+    try {
+      await axiosInstance.patch(`/projects/${projectId}/archive`);
+    } catch (error) {
+      console.error('Error approving project:', error);
+    }
+  };
+
+  const getFileName = (url) => {
+    try {
+      return decodeURIComponent(url).split('/').pop();
+    } catch {
+      return '-';
+    }
+  };
+
   return (
     <Main>
       <div className="container-fluid py-4">
@@ -9,66 +47,81 @@ function ProjectRequirement() {
           <div className="col-12 col-lg-10">
             <div className="card p-4 shadow">
               <div className="mb-3">
-                <label className="form-label fw-bold fs-4">Keperluan Projek</label>
-                <input type="text" className="form-control ps-2 shadow-dark w-100 w-md-50 w-lg-25" placeholder="Nama Sesi / batch" />
+                <h5 className="fw-bold">Project List (PPL)</h5>
               </div>
 
               <div className="table-responsive">
                 <table className="table table-bordered align-middle text-center">
                   <thead className="table-light">
                     <tr>
-                      <th>Nama Label</th>
-                      <th>Jenis</th>
-                      <th>Auto</th>
-                      <th></th>
+                      <th>Project Name</th>
+                      <th>Coordinator</th>
+                      <th>Supervisor</th>
+                      <th>Status</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Project Name</td>
-                      <td>text</td>
-                      <td>input</td>
-                      <td><button className="btn btn-sm btn-danger"><i className="bi bi-dash-circle"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td>Slide</td>
-                      <td>list</td>
-                      <td>Select</td>
-                      <td><button className="btn btn-sm btn-danger"><i className="bi bi-dash-circle"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td>Poster</td>
-                      <td>number</td>
-                      <td>input</td>
-                      <td><button className="btn btn-sm btn-danger"><i className="bi bi-dash-circle"></i></button></td>
-                    </tr>
-                    <tr>
-                      <td>Penyelia</td>
-                      <td>upload</td>
-                      <td>input</td>
-                      <td><button className="btn btn-sm btn-danger"><i className="bi bi-dash-circle"></i></button></td>
-                    </tr>
+                    {projects.length === 0 ? (
+                      <tr><td colSpan="5">No projects available</td></tr>
+                    ) : (
+                      projects.map((proj, index) => (
+                        <tr key={index} className="mobile-table-row">
+                          <td data-label="Project Name">{proj.projectName}</td>
+                          <td data-label="Coordinator">{proj.courseCoordinatorName || '-'}</td>
+                          <td data-label="Supervisor">{proj.courseSupervisorName || '-'}</td>
+                          <td data-label="Status">{proj.isFinal ? 'Final' : 'In Progress'}</td>
+                          <td data-label="Action">
+                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => setViewProject(proj)}>View</button>
+                            {!proj.isFinal && (
+                              <button className="btn btn-sm btn-outline-success" onClick={() => handleApprove(proj.projectId)}>Approve</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
-              <div className="text-center my-3 fs-3">
-                <i className="fa-solid fa-circle-plus text-info"></i>
-              </div>
-
-              <div className="d-flex flex-column flex-md-row justify-content-between">
-                <button className="btn btn-secondary mb-2 mb-md-0">Reset Default</button>
-                <div className="text-end">
-                  <button className="btn btn-warning text-white me-2">Preview</button>
-                  <button className="btn btn-success">save</button>
-                </div>
-              </div>
+              <Modal show={!!viewProject} onHide={() => setViewProject(null)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Project Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {viewProject && (
+                    <div>
+                      <p><strong>Project Name:</strong> {viewProject.projectName}</p>
+                      <p><strong>Group Members:</strong></p>
+                      <ul>
+                        {viewProject.projectTeamMembers.map((member, idx) => (
+                          <li key={idx}>{member.userName || `User ID: ${member.userId}`}</li>
+                        ))}
+                      </ul>
+                      <p><strong>Supervisor:</strong> {viewProject.courseSupervisorName || '-'}</p>
+                      <p><strong>Status:</strong> {viewProject.isFinal ? 'Final' : 'In Progress'}</p>
+                      {viewProject.projectRequirements.map((req, idx) => (
+                        req.fieldType === "file" ? (
+                          <p key={idx}>
+                            <strong>{req.fieldName}:</strong> <a href={req.fieldValue} target="_blank" rel="noreferrer">{getFileName(req.fieldValue)}</a>
+                          </p>
+                        ) : (
+                          <p key={idx}><strong>{req.fieldName}:</strong> {req.fieldValue}</p>
+                        )
+                      ))}
+                    </div>
+                  )}
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setViewProject(null)}>Close</Button>
+                </Modal.Footer>
+              </Modal>
             </div>
           </div>
         </div>
       </div>
     </Main>
-  )
+  );
 }
 
-export default ProjectRequirement
+export default ProjectRequirement;

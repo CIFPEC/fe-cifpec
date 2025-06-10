@@ -4,65 +4,37 @@ import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axiosInstance from "../utils/axiosInstance";
 
-const projekList = [
-  {
-    tajuk: "Raspberry Pi As Chromecast Alternative (Raspicast)",
-    tahun: "2023",
-    gambar: "https://tse3.mm.bing.net/th?id=OIP.U0FWQrI2mFWRhD0-2QQ4QwHaJ4&pid=Api",
-    kursus: "Komputer",
-    deskripsi: "Menggunakan Raspberry Pi untuk menggantikan Chromecast secara wireless."
-  },
-  {
-    tajuk: "PICAXE Raspberry Pi ADC",
-    tahun: "2022",
-    gambar: "https://tse2.mm.bing.net/th?id=OIP.KKDO_M3GsXzcDTTw6lXWoQHaHa&pid=Api",
-    kursus: "Komputer",
-    deskripsi: "Sistem pengumpulan data analog menggunakan Raspberry Pi dan PICAXE."
-  },
-  {
-    tajuk: "Bluetooth Robotic Arm",
-    tahun: "2023",
-    gambar: "https://tse2.mm.bing.net/th?id=OIP.cRYaMoUf_LG9J7TGuSJLBgHaEo&pid=Api",
-    kursus: "Mekatronik",
-    deskripsi: "Lengan robot yang dikawal sepenuhnya menggunakan Bluetooth."
-  },
-  {
-    tajuk: "Quadruplets Rotary Ratchet",
-    tahun: "2023",
-    gambar: "https://tse2.mm.bing.net/th?id=OIP.JXvhU0DCEEMwjd2cbSdKFAHaKe&pid=Api",
-    kursus: "Automotif",
-    deskripsi: "Sistem gear rotary dengan empat arah kawalan mekanikal."
-  },
-];
-
 const Homepage = () => {
   const [show, setShow] = useState(false);
   const [selectedProjek, setSelectedProjek] = useState(null);
   const [carian, setCarian] = useState("");
   const [sesi, setSesi] = useState("Semua Sesi");
   const [kursus, setKursus] = useState("Semua Kursus");
-  const [hasilCari, setHasilCari] = useState(projekList);
+  const [hasilCari, setHasilCari] = useState([]);
   const [siteSetting, setSiteSetting] = useState({});
+  const [projekList, setProjekList] = useState([]);
+  const URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchSiteSetting = async () => {
+
+    const fetchProjects = async () => {
       try {
-        const res = await axiosInstance.get('/site/settings');
-        setSiteSetting(res.data?.data || {});
-        if (res.data?.data?.title) {
-          document.title = res.data.data.title;
-        }
-        if (res.data?.data?.logo) {
-          const link = document.querySelector("link[rel~='icon']") || document.createElement('link');
-          link.rel = 'icon';
-          link.href = `https://api-cifpec.xtivebiz.com/site/${res.data.data.logo}`;
-          document.getElementsByTagName('head')[0].appendChild(link);
-        }
+        const res = await axiosInstance.get('/projects?isFinal=true&page=1&limit=10');
+        const mappedProjects = res.data?.data?.map(item => ({
+          tajuk: item.projectName,
+          tahun: item.batchName,
+          gambar: item.projectThumbnail,
+          kursus: item.courseName,
+          deskripsi: item.projectRequirements?.map(f => f.fieldName + ': ' + f.fieldValue).join(', ') || ""
+        })) || [];
+        setProjekList(mappedProjects);
+        setHasilCari(mappedProjects);
       } catch (err) {
-        console.error("Failed to load site settings", err);
+        console.error("Failed to fetch archived projects", err);
       }
     };
-    fetchSiteSetting();
+
+    fetchProjects();
   }, []);
 
   const handleShow = (projek) => {
@@ -89,7 +61,7 @@ const Homepage = () => {
     <div className="container-fluid px-3 px-md-4">
       <nav className="navbar navbar-expand-lg px-0 shadow-none border-radius-xl mt-2">
         <div className="container-fluid d-flex justify-content-between align-items-center">
-          <img src={siteSetting.logo ? `https://api-cifpec.xtivebiz.com/site/${siteSetting.logo}` : "./Cifpec-Logo.png"} alt="Logo CIFPEC" style={{ height: "40px" }} />
+          <img src={siteSetting.logo ? `${siteSetting.logo}` : "./Cifpec-Logo.png"} alt="Logo CIFPEC" style={{ height: "40px" }} />
           <Link to="/login">
             <Button variant="info" className="text-white">Log masuk</Button>
           </Link>
@@ -97,7 +69,7 @@ const Homepage = () => {
       </nav>
 
       <header className="page-header min-vh-50 border-radius-xl my-3 d-flex align-items-center justify-content-center position-relative text-center text-white" style={{
-        backgroundImage: siteSetting.banner ? `url(https://api-cifpec.xtivebiz.com/site/${siteSetting.banner})` : "url('/src/assets/img/bg-homepage.jpg')",
+        backgroundImage: siteSetting.banner ? `url(${siteSetting.banner})` : "url('/src/assets/img/bg-homepage.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center"
       }}>
@@ -116,13 +88,7 @@ const Homepage = () => {
             value={carian}
             onChange={(e) => setCarian(e.target.value)}
             className="border border-secondary mb-3"
-            style={{
-              height: '38px',
-              fontSize: '0.9rem',
-              paddingLeft: '12px',
-              borderRadius: '8px',
-              maxWidth: '180px',
-            }}
+            style={{ height: '38px', fontSize: '0.9rem', paddingLeft: '12px', borderRadius: '8px', maxWidth: '180px' }}
           />
 
           <Dropdown onSelect={(e) => setSesi(e)}>
@@ -133,6 +99,7 @@ const Homepage = () => {
               <Dropdown.Item eventKey="Semua Sesi">Semua Sesi</Dropdown.Item>
               <Dropdown.Item eventKey="2022">2022</Dropdown.Item>
               <Dropdown.Item eventKey="2023">2023</Dropdown.Item>
+              <Dropdown.Item eventKey="1/2025">1/2025</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
 
@@ -147,6 +114,7 @@ const Homepage = () => {
               <Dropdown.Item eventKey="Automotif">Automotif</Dropdown.Item>
               <Dropdown.Item eventKey="Pembuatan">Pembuatan</Dropdown.Item>
               <Dropdown.Item eventKey="Telekomunikasi">Telekomunikasi</Dropdown.Item>
+              <Dropdown.Item eventKey="Mobile Development">Mobile Development</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
 

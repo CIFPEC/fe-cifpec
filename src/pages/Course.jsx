@@ -94,23 +94,23 @@ function Course() {
           <div className="col-12 col-lg-10">
             <div className="card p-4 shadow-sm">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
-                <h6 className="fw-bold mb-0">Senarai Kursus</h6>
-                <Button variant="primary" onClick={handleOpenCreateModal}>+ Kursus Baru</Button>
+                <h6 className="fw-bold mb-0">Course List</h6>
+                <Button variant="primary" onClick={handleOpenCreateModal}>Create New</Button>
               </div>
 
               <div className="table-responsive">
                 <table className="table table-bordered text-center align-middle">
                   <thead className="table-light">
                     <tr>
-                      <th>Nama</th>
-                      <th>Penyelaras</th>
-                      <th>Tindakan</th>
+                      <th>Name</th>
+                      <th>Supervisor</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {projectList.length === 0 ? (
                       <tr>
-                        <td colSpan="3">Tiada Kursus Tersedia</td>
+                        <td colSpan="3">No Course Available</td>
                       </tr>
                     ) : (
                       projectList.map((course, index) => (
@@ -174,14 +174,14 @@ function Course() {
 
         {/* Modal Tambah Kursus */}
         <Modal show={showCreateModal} onHide={handleCloseCreateModal} centered>
-          <Modal.Header closeButton><Modal.Title>Tambah Kursus</Modal.Title></Modal.Header>
+          <Modal.Header closeButton><Modal.Title>Create Course</Modal.Title></Modal.Header>
           <Modal.Body>
             {apiError && <Alert variant="danger">{apiError}</Alert>}
             <Form.Group className="mb-3">
-              <Form.Label>Nama Kursus</Form.Label>
+              <Form.Label>Course</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Contoh: Teknologi Komputer"
+                placeholder="Information Technology"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 className="form-control-lg"
@@ -190,21 +190,21 @@ function Course() {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseCreateModal}>Tutup</Button>
-            <Button variant="primary" onClick={createCourse}>Simpan</Button>
+            <Button variant="secondary" onClick={handleCloseCreateModal}>Close</Button>
+            <Button variant="primary" onClick={createCourse}>Save</Button>
           </Modal.Footer>
         </Modal>
 
         {/* Modal Ubah Kursus */}
         <Modal show={showEditModal} onHide={handleCloseEditModal} centered>
-          <Modal.Header closeButton><Modal.Title>Ubah Kursus</Modal.Title></Modal.Header>
+          <Modal.Header closeButton><Modal.Title>Edit Course</Modal.Title></Modal.Header>
           <Modal.Body>
             {apiError && <Alert variant="danger">{apiError}</Alert>}
             <Form.Group className="mb-3">
-              <Form.Label>Nama Kursus</Form.Label>
+              <Form.Label>Course</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Contoh: Teknologi Komputer"
+                placeholder="Information Technology"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 className="form-control-lg"
@@ -213,8 +213,8 @@ function Course() {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseEditModal}>Tutup</Button>
-            <Button variant="primary" onClick={updateCourse}>Simpan</Button>
+            <Button variant="secondary" onClick={handleCloseEditModal}>Close</Button>
+            <Button variant="primary" onClick={updateCourse}>Save</Button>
           </Modal.Footer>
         </Modal>
       </div>

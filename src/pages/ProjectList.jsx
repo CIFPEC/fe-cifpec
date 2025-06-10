@@ -7,7 +7,6 @@ import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
 
-
 function ProjectList() {
   const [projects, setProjects] = useState([]);
   const [students, setStudents] = useState([]);
@@ -24,7 +23,6 @@ function ProjectList() {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
   const courseId = decoded?.courseId;
@@ -35,12 +33,16 @@ function ProjectList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resProjects = await axiosInstance.get(`/user/projects`);
-        // console.log("PROJECT: ",resProjects?.data?.data)
+        let resProjects;
+        if (roleId === 5) {
+          resProjects = await axiosInstance.get(`/user/projects`);
+        } else {
+          resProjects = await axiosInstance.get(`/batches/${batchId}/projects?page=1&limit=10`);
+        }
         setProjects(resProjects?.data?.data || null);
 
         const resStudents = await axiosInstance.get(`/users/students?course=${courseId}`);
-        const getStudent = resStudents?.data?.data.filter(user => user.userId !== userId)
+        const getStudent = resStudents?.data?.data.filter(user => user.userId !== userId);
         setStudents(getStudent || null);
 
         const resSupervisors = await axiosInstance.get(`/users/lecturers?course=${courseId}`);
@@ -48,22 +50,23 @@ function ProjectList() {
 
         const getUser = await axiosInstance.get('/user/profile');
         setCurrentUser(getUser?.data?.data || {});
+
         if (decoded?.roleId === 5) {
           const resCheck = await axiosInstance.get(`/user/projects`);
-          setHasProject(resCheck?.data?.data?.length > 0); // pelajar ada projek ke tak
+          setHasProject(resCheck?.data?.data?.length > 0);
         }
       } catch (err) {
-        console.log("ERROR FETCH:", err)
+        console.log("ERROR FETCH:", err);
         setError('Failed to fetch data');
       } finally {
-        setTimeout(() => { setIsLoading(false) }, 1000)
+        setTimeout(() => { setIsLoading(false); }, 1000);
       }
     };
 
     fetchData();
   }, [location]);
 
-  if(isLoading) return <Loading />
+  if (isLoading) return <Loading />;
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -84,12 +87,10 @@ function ProjectList() {
       return student?.userId;
     }).filter(Boolean);
 
-
     const supervisorObj = supervisors.find(s => s.userName === supervisor);
     if (!supervisorObj) {
       setError('Invalid supervisor selected.');
       return;
-
     }
 
     const data = {
@@ -112,10 +113,9 @@ function ProjectList() {
     }
   };
 
-
   const handleViewProject = (project) => {
-    console.log(project)
-    setViewProject(project)
+    console.log(project);
+    setViewProject(project);
   };
 
   const handleEditProject = (projectId) => {
@@ -132,14 +132,12 @@ function ProjectList() {
             <div className="card p-4 shadow-sm">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
                 <h6 className="fw-bold mb-3 mb-md-0">
-                  Project List{currentUser?.userCourse?.courseName ?  ` - ${currentUser.userCourse.courseName}` : ''}
+                  Project List{currentUser?.userCourse?.courseName ? ` - ${currentUser.userCourse.courseName}` : ''}
                 </h6>
                 <div className="d-flex flex-md-row flex-column align-items-md-center gap-2 w-100 w-md-auto mt-3">
                   {roleId === 5 && !hasProject && (
                     <button onClick={handleOpenModal} className="btn btn-info w-100 w-md-auto px-4 py-2">Create New</button>
                   )}
-
-
                 </div>
               </div>
 
@@ -161,14 +159,13 @@ function ProjectList() {
                       projects.map((proj, index) => (
                         <tr key={index}>
                           <td>{proj.projectName}</td>
-                          <td>{proj.penyelaras || '-'}</td>
-                          <td>{proj.penyelia || proj.supervisor || '-'}</td>
+                          <td>{proj.penyelaras || proj.courseCoordinatorName || '-'}</td>
+                          <td>{proj.penyelia || proj.supervisor || proj.courseSupervisorName || '-'}</td>
                           <td>{proj.isFinal === false ? 'In Progress' : 'Final'}</td>
                           <td>
                             <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleViewProject(proj)}>View</button>
                             <button className="btn btn-sm btn-outline-success" onClick={() => handleEditProject(proj.projectId)}>Edit</button>
                           </td>
-
                         </tr>
                       ))
                     )}
@@ -256,10 +253,10 @@ function ProjectList() {
                 </ul>
                 <p><strong>Supervisor:</strong> {viewProject.courseSupervisorName || '-'}</p>
                 <p><strong>Status:</strong> {viewProject.isFinal === false ? 'in Progress' : 'Final'}</p>
-                {viewProject.projectRequirements.map((req,idx)=>(
+                {viewProject.projectRequirements.map((req, idx) => (
                   req.fieldType === "file" ? (
                     <p key={idx}><strong>{req.fieldName}:</strong> <a href={req.fieldValue} target="_blank">View</a></p>
-                  ):(
+                  ) : (
                     <p key={idx}><strong>{req.fieldName}:</strong> {req.fieldValue}</p>
                   )
                 ))}
