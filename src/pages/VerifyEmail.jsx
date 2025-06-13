@@ -33,6 +33,7 @@ export default function VerifyEmailPage() {
       const res = await axiosInstance.post('/auth/email/verify', payload, {
         headers: { 'Verify-Token': verifyToken }
       });
+      localStorage.setItem("accessToken",res?.data?.data?.token)
       setMessage('Verification successful! Your email has been verified.');
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
