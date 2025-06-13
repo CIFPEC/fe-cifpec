@@ -1,4 +1,4 @@
-// Updated Auth.jsx with red text error messages only
+
 import React, { useState, useEffect } from 'react';
 import "./../assets/css/login.css";
 import DefaultLogo from "./../assets/img/Cifpec-Logo.png";

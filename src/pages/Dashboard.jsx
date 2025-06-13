@@ -15,6 +15,47 @@ function Dashboard() {
     students: []
   });
 
+  const dummyKategori = [
+    { id: 1, name: "Smart Vending Machine", course: "Komputer", field: "IoT" },
+    { id: 2, name: "Portable Battery Charger", course: "Mekatronik", field: "Automation" },
+    { id: 3, name: "Egg Grading Machine", course: "Pembuatan", field: "Mechanical" },
+    { id: 4, name: "Meat Floss Fryer", course: "Mekatronik", field: "FoodTech" },
+    { id: 5, name: "Lock N Load", course: "Automotif", field: "Security" },
+  ];
+
+  const dummySenaraiProjek = [
+    {
+      name: "Smart Vending Machine",
+      penyelaras: "Puan Haida",
+      penyelia: "Puan Fairuzana",
+      course: "Komputer",
+      field: "IoT"
+    },
+    {
+      name: "Egg Grading Machine",
+      penyelaras: "Encik Kamal",
+      penyelia: "Puan Hana",
+      course: "Mekatronik",
+      field: "Automation"
+    },
+    {
+      name: "Portable Battery Charger",
+      penyelaras: "Puan Laila",
+      penyelia: "Encik Azwan",
+      course: "Pembuatan",
+      field: "Electrical"
+    }
+  ];
+
+  const bidangStatistik = {
+    "Web Development": 8,
+    "Mechatronic": 12,
+    "Networking": 5,
+    "Game Development": 7,
+    "Automotive": 4,
+    "Manufacturing": 3,
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -97,6 +138,44 @@ function Dashboard() {
     };
   }, [dashboardData.kursus]);
 
+  useEffect(() => {
+    const ctx = document.getElementById('bidangChart');
+    let chart;
+
+    if (ctx && Object.keys(bidangStatistik).length > 0) {
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(bidangStatistik),
+          datasets: [
+            {
+              label: 'Jumlah Projek',
+              data: Object.values(bidangStatistik),
+              backgroundColor: '#3f8efc',
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          },
+        },
+      });
+    }
+
+    return () => {
+      if (chart) chart.destroy();
+    };
+  }, []);
+
   const infoCards = [
     { label: 'Total Students Current', value: dashboardData.pelajar, color: 'bg-pink-100 text-pink-800', icon: 'group' },
     { label: 'Total Project Current', value: dashboardData.projek, color: 'bg-green-100 text-green-800', icon: 'assignment' },
@@ -159,6 +238,80 @@ function Dashboard() {
             </div>
           </div>
         </div>
+
+        <div className="row mt-4">
+          <div className="col-12">
+            <div className="bg-white p-4 shadow-sm rounded h-100 border">
+              <h5 className="mb-3 fw-semibold">Kategori Projek Penyertaan</h5>
+              <div className="table-responsive">
+                <table className="table table-bordered align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Projek</th>
+                      <th>Kursus</th>
+                      <th>Bidang</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dummyKategori.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.id}</td>
+                        <td>{item.name}</td>
+                        <td>{item.course}</td>
+                        <td>{item.field}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="row mt-4">
+          <div className="col-12">
+            <div className="bg-white p-4 shadow-sm rounded h-100 border">
+              <h5 className="mb-3 fw-semibold">Statistik Penyertaan Mengikut Bidang</h5>
+              <div style={{ height: '300px', position: 'relative' }}>
+                <canvas id="bidangChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="row mt-4">
+          <div className="col-12">
+            <div className="bg-white p-4 shadow-sm rounded h-100 border">
+              <h5 className="mb-3 fw-semibold">Senarai Projek Pelajar</h5>
+              <div className="table-responsive">
+                <table className="table table-bordered align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Nama Projek</th>
+                      <th>Penyelaras</th>
+                      <th>Penyelia</th>
+                      <th>Kursus</th>
+                      <th>Bidang</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dummySenaraiProjek.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.name}</td>
+                        <td>{item.penyelaras}</td>
+                        <td>{item.penyelia}</td>
+                        <td>{item.course}</td>
+                        <td>{item.field}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </Main>
   );

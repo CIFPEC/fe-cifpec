@@ -19,7 +19,7 @@ const Homepage = () => {
 
     const fetchProjects = async () => {
       try {
-        const res = await axiosInstance.get('/projects?isFinal=true&page=1&limit=10');
+        const res = await axiosInstance.get('/projects?page=1&limit=10');
         const mappedProjects = res.data?.data?.map(item => ({
           tajuk: item.projectName,
           tahun: item.batchName,

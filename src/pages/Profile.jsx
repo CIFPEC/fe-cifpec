@@ -232,6 +232,7 @@ function Profile() {
                           <input type="text" className="form-control" name="userUsername" placeholder="Username" value={formData.userUsername} onChange={handleFormChange} />
                           {formErrors.userUsername && <div style={{ color: 'red' }}>{formErrors.userUsername}</div>}
                         </div>
+                        <p><strong>No Kad Pengenalan:</strong> 010203040567</p>
                         <div className="mb-3">
                           <select className="form-select" name="userGender" value={formData.userGender} onChange={handleFormChange}>
                             <option value="">Select Gender</option>

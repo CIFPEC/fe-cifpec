@@ -18,6 +18,7 @@ function ProjectList() {
   const [groupMembers, setGroupMembers] = useState([]);
   const [supervisor, setSupervisor] = useState('');
   const [error, setError] = useState('');
+  const [boothNo, setBoothNo] = useState('');
   const [hasProject, setHasProject] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -46,7 +47,12 @@ function ProjectList() {
         setStudents(getStudent || null);
 
         const resSupervisors = await axiosInstance.get(`/users/lecturers?course=${courseId}`);
-        setSupervisors(resSupervisors?.data?.data || null);
+        console.log("👉 DATA LECTURERS:", resSupervisors.data.data);
+
+        const filteredSupervisors = resSupervisors?.data?.data.filter(
+          user => user.userRole?.roleName?.toLowerCase() === 'supervisor');
+
+        setSupervisors(filteredSupervisors || null);
 
         const getUser = await axiosInstance.get('/user/profile');
         setCurrentUser(getUser?.data?.data || {});
@@ -97,6 +103,7 @@ function ProjectList() {
       projectName,
       supervisorId: supervisorObj.userId,
       teams: selectedStudentIds,
+      noBooth: boothNo
     };
 
     try {
@@ -223,11 +230,22 @@ function ProjectList() {
                 <Form.Label>Supervisor</Form.Label>
                 <Form.Select value={supervisor} onChange={(e) => setSupervisor(e.target.value)}>
                   <option value="">--select supervisor--</option>
-                  {supervisors.map(sup => (
-                    <option key={sup.userId} value={sup.userName}>{sup.userName}</option>
-                  ))}
+                  {supervisors
+                    .filter(sup => sup.userRole?.roleName?.toLowerCase() === 'supervisor')
+                    .map(sup => (
+                      <option key={sup.userId} value={sup.userName}>{sup.userName}</option>
+                    ))}
                 </Form.Select>
               </Form.Group>
+              <Form.Group className="mb-3 me-5">
+              <Form.Label>No Booth</Form.Label>
+              <Form.Control className='border ps-2'
+                type="text"
+                placeholder="Contoh: B12"
+                value={boothNo}
+                onChange={(e) => setBoothNo(e.target.value)}
+              />
+            </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>

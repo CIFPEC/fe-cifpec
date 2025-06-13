@@ -12,6 +12,7 @@ function StudentProject() {
 
   const [projectName, setProjectName] = useState('');
   const [courseName, setCourseName] = useState('');
+  const [courseList, setCourseList] = useState([]);
   const [groupMembers, setGroupMembers] = useState(['', '', '']);
   const [supervisor, setSupervisor] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -20,6 +21,9 @@ function StudentProject() {
   const [oldRequirements, setOldRequirements] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [projectThumbnail, setProjectThumbnail] = useState(null);
+  const [fieldName, setFieldName] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const bidangOptions = ['Multimedia', 'AI', 'IoT', 'Robotic', 'Web App'];
 
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
@@ -27,15 +31,17 @@ function StudentProject() {
   const batchId = decoded?.batchId;
 
   useEffect(() => {
-    const courseList = {
-      1: 'Web Development',
-      2: 'Networking',
-      3: 'Game Development',
-      4: 'Automotive',
-      5: 'Mechatronic',
-      6: 'Manufacturing'
+    const getCourseList = async () => {
+      try {
+        const res = await axiosInstance.get('/courses');
+        setCourseList(res?.data?.data || []);
+        const userCourse = res?.data?.data.find(c => c.courseId === courseId);
+        setCourseName(userCourse?.courseName || '');
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
     };
-    setCourseName(courseList[courseId] || '');
+    getCourseList();
 
     if (projectId) {
       setIsEditMode(true);
@@ -82,18 +88,21 @@ function StudentProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!projectThumbnail) {
+      setErrorMsg('Sila muat naik gambar Project Thumbnail.');
+      return;
+    }
+
     const formDataToSend = new FormData();
 
     Object.keys(requirementValues).forEach((key) => {
       const value = requirementValues[key];
       if (value) {
-        formDataToSend.append(`requirements[${key}]`, value);
+        formDataToSend.append(key, value);
       }
     });
 
-    if (projectThumbnail) {
-      formDataToSend.append('projectThumbnail', projectThumbnail);
-    }
+    formDataToSend.append('projectThumbnail', projectThumbnail);
 
     try {
       await axiosInstance.patch(`/user/projects/${projectId}`, formDataToSend);
@@ -111,18 +120,21 @@ function StudentProject() {
           <div className="col-12 col-md-10 col-lg-8">
             <div className="tab-pane fade show active shadow p-4 rounded bg-white">
               <h5 className="fw-bold">Update Project</h5>
+              {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
+                  <label className="form-label fw-bold">Project Name</label>
                     <input
                       type="text"
                       className="form-control"
                       placeholder="Project Name"
                       value={projectName}
-                      readOnly
+                      onChange={(e) => setProjectName(e.target.value)}
                     />
                   </div>
                   <div className="col-md-6 mb-3">
+                  <label className="form-label fw-bold">Course</label>
                     <input
                       type="text"
                       className="form-control"
@@ -130,18 +142,54 @@ function StudentProject() {
                       readOnly
                     />
                   </div>
-                  {groupMembers.map((member, index) => (
-                    <div className="col-md-6 mb-3" key={index}>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder={`Member ${index + 1} Name`}
-                        value={member}
-                        readOnly
-                      />
-                    </div>
-                  ))}
+
+                  <div className="col-md-4 mb-3">
+                  <label className="form-label fw-bold">Your Name</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Member 1 Name"
+                      value={groupMembers[0]}
+                      readOnly
+                    />
+                  </div>
+                  <div className="col-md-4 mb-3">
+                  <label className="form-label fw-bold">Member Name 1</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Member 2 Name"
+                      value={groupMembers[1]}
+                      readOnly
+                    />
+                  </div>
+                  <div className="col-md-4 mb-3">
+                  <label className="form-label fw-bold">Member Name 2</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Member 3 Name"
+                      value={groupMembers[2]}
+                      readOnly
+                    />
+                  </div>
+
                   <div className="col-md-6 mb-3">
+                    <label className="form-label fw-bold">Bidang Projek</label>
+                    <select
+                      className="form-select"
+                      value={fieldName}
+                      onChange={(e) => setFieldName(e.target.value)}
+                    >
+                      <option value="">--Pilih Bidang--</option>
+                      {bidangOptions.map((opt, idx) => (
+                        <option key={idx} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                  <label className="form-label fw-bold">Supervisor</label>
                     <input
                       type="text"
                       className="form-control"
@@ -175,7 +223,7 @@ function StudentProject() {
                               type="text"
                               className="form-control"
                               placeholder={`Enter ${req.label}`}
-                              name={req.tag}
+                              name={`requirements[${req.tag}]`}
                               value={fieldValue}
                               onChange={(e) => handleRequirementChange(e)}
                               disabled={!isEditMode && isSubmitted}

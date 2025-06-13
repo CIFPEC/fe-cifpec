@@ -70,7 +70,7 @@ function Course() {
 
     try {
       const courseId = projectList[editProjectIndex]?.courseId;
-      await axiosInstance.put(`/courses/${courseId}`, { courseName: projectName });
+      await axiosInstance.patch(`/courses/${courseId}`, { courseName: projectName });
       handleCloseEditModal();
       fetchCourses(page);
     } catch (error) {

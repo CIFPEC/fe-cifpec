@@ -2,20 +2,25 @@ import React, { useEffect, useState } from 'react';
 import Main from '../components/Main';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../utils/axiosInstance';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Form } from 'react-bootstrap';
 import './../assets/css/ProjectRequirement.css';
 
 function ProjectRequirement() {
   const [projects, setProjects] = useState([]);
   const [viewProject, setViewProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [boothEdit, setBoothEdit] = useState('');
+  const [showBoothModal, setShowBoothModal] = useState(false);
+
   const token = localStorage.getItem('accessToken');
   const decoded = token ? jwtDecode(token) : {};
+  const roleId = decoded?.roleId;
   const batchId = decoded?.batchId;
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axiosInstance.get(`/batches/1/projects?page=1&limit=10`); // hardcoded batchId = 1
+        const response = await axiosInstance.get(`/batches/1/projects?page=1&limit=10`);
         setProjects(response.data.data || []);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -24,21 +29,12 @@ function ProjectRequirement() {
     fetchProjects();
   }, []);
 
-  const handleApprove = async (projectId) => {
-    try {
-      await axiosInstance.patch(`/projects/${projectId}/archive`);
-    } catch (error) {
-      console.error('Error approving project:', error);
-    }
+  const handleViewProject = (project) => {
+    console.log(project);
+    setViewProject(project);
   };
 
-  const getFileName = (url) => {
-    try {
-      return decodeURIComponent(url).split('/').pop();
-    } catch {
-      return '-';
-    }
-  };
+  const handleCloseViewModal = () => setViewProject(null);
 
   return (
     <Main>
@@ -72,9 +68,18 @@ function ProjectRequirement() {
                           <td data-label="Supervisor">{proj.courseSupervisorName || '-'}</td>
                           <td data-label="Status">{proj.isFinal ? 'Final' : 'In Progress'}</td>
                           <td data-label="Action">
-                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => setViewProject(proj)}>View</button>
-                            {!proj.isFinal && (
-                              <button className="btn btn-sm btn-outline-success" onClick={() => handleApprove(proj.projectId)}>Approve</button>
+                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleViewProject(proj)}>View</button>
+                            {roleId === 1 && (
+                              <button
+                                className="btn btn-sm btn-warning"
+                                onClick={() => {
+                                  setSelectedProject(proj);
+                                  setBoothEdit(proj.noBooth || '');
+                                  setShowBoothModal(true);
+                                }}
+                              >
+                                Edit Booth
+                              </button>
                             )}
                           </td>
                         </tr>
@@ -84,7 +89,7 @@ function ProjectRequirement() {
                 </table>
               </div>
 
-              <Modal show={!!viewProject} onHide={() => setViewProject(null)} centered>
+              <Modal show={!!viewProject} onHide={handleCloseViewModal} centered>
                 <Modal.Header closeButton>
                   <Modal.Title>Project Details</Modal.Title>
                 </Modal.Header>
@@ -95,16 +100,14 @@ function ProjectRequirement() {
                       <p><strong>Group Members:</strong></p>
                       <ul>
                         {viewProject.projectTeamMembers.map((member, idx) => (
-                          <li key={idx}>{member.userName || `User ID: ${member.userId}`}</li>
+                          <li key={idx}>{member.userName}</li>
                         ))}
                       </ul>
                       <p><strong>Supervisor:</strong> {viewProject.courseSupervisorName || '-'}</p>
-                      <p><strong>Status:</strong> {viewProject.isFinal ? 'Final' : 'In Progress'}</p>
+                      <p><strong>Status:</strong> {viewProject.isFinal === false ? 'in Progress' : 'Final'}</p>
                       {viewProject.projectRequirements.map((req, idx) => (
                         req.fieldType === "file" ? (
-                          <p key={idx}>
-                            <strong>{req.fieldName}:</strong> <a href={req.fieldValue} target="_blank" rel="noreferrer">{getFileName(req.fieldValue)}</a>
-                          </p>
+                          <p key={idx}><strong>{req.fieldName}:</strong> <a href={req.fieldValue} target="_blank">View</a></p>
                         ) : (
                           <p key={idx}><strong>{req.fieldName}:</strong> {req.fieldValue}</p>
                         )
@@ -113,9 +116,35 @@ function ProjectRequirement() {
                   )}
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setViewProject(null)}>Close</Button>
+                  <Button variant="secondary" onClick={handleCloseViewModal}>Close</Button>
                 </Modal.Footer>
               </Modal>
+
+              <Modal show={showBoothModal} onHide={() => setShowBoothModal(false)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Edit No Booth</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form.Group>
+                    <Form.Label>No Booth</Form.Label>
+                    <Form.Control className='border ps-2'
+                      type="text"
+                      value={boothEdit}
+                      onChange={(e) => setBoothEdit(e.target.value)}
+                    />
+                  </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setShowBoothModal(false)}>Close</Button>
+                  <Button variant="primary" onClick={() => {
+                    console.log(`No Booth untuk projek ${selectedProject.projectName}: ${boothEdit}`);
+                    setShowBoothModal(false);
+                  }}>
+                    Save (Dummy)
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+
             </div>
           </div>
         </div>
