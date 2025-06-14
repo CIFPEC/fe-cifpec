@@ -15,6 +15,7 @@ function Profile() {
     userUsername: '',
     userGender: '',
     userPhoneNumber: '',
+    nric: '',
     profileImage: null
   });
   const [formErrors, setFormErrors] = useState({});
@@ -42,6 +43,7 @@ function Profile() {
           userUsername: data.userUsername || '',
           userGender: data.userGender ? data.userGender.charAt(0).toUpperCase() + data.userGender.slice(1).toLowerCase() : '',
           userPhoneNumber: data.userPhoneNumber || '',
+          nric: data.nric || '',
           profileImage: data.userProfileImage || null
         });
         
@@ -102,7 +104,8 @@ function Profile() {
     form.append('userName', formData.userName);
     form.append('userUsername', formData.userUsername);
     form.append('userGender', formData.userGender);
-    form.append('userPhoneNumber', formData.userPhoneNumber);
+    form.append('userPhone', formData.userPhoneNumber);
+    form.append('nric', formData.nric);
     if (formData.profileImage instanceof File) {
       form.append('userProfileImage', formData.profileImage);
     }
@@ -117,6 +120,7 @@ function Profile() {
         setShowRequestButton(true);
       }
     } catch (err) {
+      console.log("ERROR: ", err);
       const errors = err.response?.data?.errors || [];
       const newErrors = {};
       errors.forEach((e) => {
@@ -163,12 +167,24 @@ function Profile() {
             <div className="bg-white p-4 rounded shadow-sm">
               <ul className="nav nav-tabs mb-4 d-flex flex-column flex-md-row">
                 <li className="nav-item flex-fill">
-                  <a className={`nav-link cursor-pointer ${profileTab ? "active" : ""}`} onClick={() => { setProfileTab(true); setSettingTab(false); }} style={{ textAlign: "center", fontWeight: "bold" }}>
+                  <a
+                    className={`nav-link cursor-pointer ${profileTab ? "active" : ""}`}
+                    onClick={() => {
+                      setProfileTab(true);
+                      setSettingTab(false);
+                    }}
+                    style={{ textAlign: "center", fontWeight: "bold" }}>
                     Profile
                   </a>
                 </li>
                 <li className="nav-item flex-fill">
-                  <a className={`nav-link cursor-pointer ${settingTab ? "active" : ""}`} onClick={() => { setProfileTab(false); setSettingTab(true); }} style={{ textAlign: "center", fontWeight: "bold" }}>
+                  <a
+                    className={`nav-link cursor-pointer ${settingTab ? "active" : ""}`}
+                    onClick={() => {
+                      setProfileTab(false);
+                      setSettingTab(true);
+                    }}
+                    style={{ textAlign: "center", fontWeight: "bold" }}>
                     Settings
                   </a>
                 </li>
@@ -183,38 +199,25 @@ function Profile() {
                         <div
                           className="profile-pic mx-auto mb-3"
                           style={{
-                            backgroundImage: `url(${
-                              previewImage
-                                ? previewImage
-                                : typeof formData.profileImage === 'string'
-                                ? formData.profileImage
-                                : defaultImage
-                            })`,
-                            
-                            
+                            backgroundImage: `url(${previewImage ? previewImage : typeof formData.profileImage === "string" ? formData.profileImage : defaultImage})`,
+
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             width: "150px",
                             height: "150px",
                             borderRadius: "50%",
                             cursor: "pointer",
-                            position: "relative"
-                          }}
-                        >
+                            position: "relative",
+                          }}>
                           <div className="change-image-text">Change Image</div>
                         </div>
                       </label>
-                      <input
-                        type="file"
-                        id="profileImageInput"
-                        name="profileImage"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={handleFormChange}
-                      />
+                      <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style={{ display: "none" }} onChange={handleFormChange} />
                       {showRequestButton && !userData.isLecturerRequest && !userData.isAdminApprove && (
                         <div className="text-center mt-3">
-                          <button className="btn btn-primary" onClick={handleRequestRole}>Request</button>
+                          <button className="btn btn-primary" onClick={handleRequestRole}>
+                            Request
+                          </button>
                         </div>
                       )}
                     </div>
@@ -222,30 +225,39 @@ function Profile() {
                     <div className="col-md-8">
                       <form onSubmit={updateProfile}>
                         <div className="mb-3">
-                          <div className="form-control-plaintext">{formData.userEmail}</div>
+                          <input type="text" className="form-control" placeholder="Email" value={formData.userEmail} readOnly/>
                         </div>
                         <div className="mb-3">
                           <input type="text" className="form-control" name="userName" placeholder="Fullname" value={formData.userName} onChange={handleFormChange} />
-                          {formErrors.userName && <div style={{ color: 'red' }}>{formErrors.userName}</div>}
+                          {formErrors.userName && <div style={{ color: "red" }}>{formErrors.userName}</div>}
                         </div>
                         <div className="mb-3">
                           <input type="text" className="form-control" name="userUsername" placeholder="Username" value={formData.userUsername} onChange={handleFormChange} />
-                          {formErrors.userUsername && <div style={{ color: 'red' }}>{formErrors.userUsername}</div>}
+                          {formErrors.userUsername && <div style={{ color: "red" }}>{formErrors.userUsername}</div>}
                         </div>
-                        <p><strong>No Kad Pengenalan:</strong> 010203040567</p>
+                        <div className="mb-3">
+                          <input type="number" className="form-control" name="nric" placeholder="NRIC / IC Number" value={formData.nric} onChange={handleFormChange} />
+                          {formErrors.nric && <div style={{ color: "red" }}>{formErrors.nric}</div>}
+                        </div>
                         <div className="mb-3">
                           <select className="form-select" name="userGender" value={formData.userGender} onChange={handleFormChange}>
                             <option value="">Select Gender</option>
-                            {['Male', 'Female'].map((g, i) => <option key={i} value={g}>{g}</option>)}
+                            {["Male", "Female"].map((g, i) => (
+                              <option key={i} value={g}>
+                                {g}
+                              </option>
+                            ))}
                           </select>
-                          {formErrors.userGender && <div style={{ color: 'red' }}>{formErrors.userGender}</div>}
+                          {formErrors.userGender && <div style={{ color: "red" }}>{formErrors.userGender}</div>}
                         </div>
                         <div className="mb-3">
                           <input type="tel" className="form-control" name="userPhoneNumber" placeholder="Phone Number" value={formData.userPhoneNumber} onChange={handleFormChange} />
-                          {formErrors.userPhoneNumber && <div style={{ color: 'red' }}>{formErrors.userPhoneNumber}</div>}
+                          {formErrors.userPhoneNumber && <div style={{ color: "red" }}>{formErrors.userPhoneNumber}</div>}
                         </div>
                         <div className="text-end">
-                          <button type="submit" className="btn btn-success px-4">Save</button>
+                          <button type="submit" className="btn btn-success px-4">
+                            Save
+                          </button>
                         </div>
                       </form>
                     </div>
@@ -257,38 +269,37 @@ function Profile() {
                     <div className="col-12">
                       <p className="fw-bold">Change Password</p>
                       <form onSubmit={changePassword}>
-                        {['oldPassword', 'newPassword', 'repeatPassword'].map((field, index) => (
+                        {["oldPassword", "newPassword", "repeatPassword"].map((field, index) => (
                           <div className="mb-3 position-relative" key={index}>
                             <input
                               type={showPasswords[field] ? "text" : "password"}
                               className="form-control"
                               name={field}
-                              placeholder={{
-                                oldPassword: "Old Password",
-                                newPassword: "New Password",
-                                repeatPassword: "Repeat Password"
-                              }[field]}
+                              placeholder={
+                                {
+                                  oldPassword: "Old Password",
+                                  newPassword: "New Password",
+                                  repeatPassword: "Repeat Password",
+                                }[field]
+                              }
                               value={passwords[field]}
                               onChange={handlePasswordChange}
                             />
-                            <span
-                              className="position-absolute top-50 end-0 translate-middle-y me-3"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => togglePasswordVisibility(field)}
-                            >
+                            <span className="position-absolute top-50 end-0 translate-middle-y me-3" style={{ cursor: "pointer" }} onClick={() => togglePasswordVisibility(field)}>
                               <i className={`bi ${showPasswords[field] ? "bi-eye-slash" : "bi-eye"}`}></i>
                             </span>
                           </div>
                         ))}
                         <div className="text-end">
-                          <button type="submit" className="btn btn-success px-4">Save</button>
+                          <button type="submit" className="btn btn-success px-4">
+                            Save
+                          </button>
                         </div>
                       </form>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>

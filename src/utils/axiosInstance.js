@@ -42,6 +42,7 @@ axiosInstance.interceptors.request.use(async (config) => {
       }
 
       console.log('Renew token failed after retry. Log out');
+      await axiosInstance.delete('/auth/logout');
       localStorage.removeItem('accessToken');
       window.location.href = '/login';
       return Promise.reject(error)

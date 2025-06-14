@@ -228,7 +228,7 @@ function Batch() {
         <Modal.Body>
           <Form.Group className="mb-3">
             <Form.Label>Batch Name</Form.Label>
-            <Form.Control type="text" value={editBatchName} onChange={(e) => setEditBatchName(e.target.value)} />
+            <Form.Control type="text" className='border ps-2' value={editBatchName} onChange={(e) => setEditBatchName(e.target.value)} />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Course</Form.Label>
