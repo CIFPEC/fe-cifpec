@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import Main from '../components/Main';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import axiosInstance from '../utils/axiosInstance';
-import { jwtDecode } from 'jwt-decode';
-import { useLocation } from 'react-router-dom';
-import Loading from '../components/Loading';
+import React, { useState, useEffect } from "react";
+import Main from "../components/Main";
+import { useNavigate } from "react-router-dom";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
+import axiosInstance from "../utils/axiosInstance";
+import { jwtDecode } from "jwt-decode";
+import { useLocation } from "react-router-dom";
+import Loading from "../components/Loading";
 
 function ProjectList() {
   const [projects, setProjects] = useState([]);
@@ -14,17 +14,17 @@ function ProjectList() {
   const [supervisors, setSupervisors] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [viewProject, setViewProject] = useState(null);
-  const [projectName, setProjectName] = useState('');
+  const [projectName, setProjectName] = useState("");
   const [groupMembers, setGroupMembers] = useState([]);
-  const [supervisor, setSupervisor] = useState('');
-  const [error, setError] = useState('');
-  const [boothNo, setBoothNo] = useState('');
+  const [supervisor, setSupervisor] = useState("");
+  const [error, setError] = useState("");
+  const [boothNumber, setBoothNUmber] = useState("");
   const [hasProject, setHasProject] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   const decoded = token ? jwtDecode(token) : {};
   const courseId = decoded?.courseId;
   const userId = decoded?.userId;
@@ -38,23 +38,32 @@ function ProjectList() {
         if (roleId === 5) {
           resProjects = await axiosInstance.get(`/user/projects`);
         } else {
-          resProjects = await axiosInstance.get(`/batches/${batchId}/projects?page=1&limit=10`);
+          resProjects = await axiosInstance.get(
+            `/batches/${batchId}/projects?page=1&limit=10`
+          );
         }
         setProjects(resProjects?.data?.data || null);
 
-        const resStudents = await axiosInstance.get(`/users/students?course=${courseId}`);
-        const getStudent = resStudents?.data?.data.filter(user => user.userId !== userId);
+        const resStudents = await axiosInstance.get(
+          `/users/students?course=${courseId}`
+        );
+        const getStudent = resStudents?.data?.data.filter(
+          (user) => user.userId !== userId
+        );
         setStudents(getStudent || null);
 
-        const resSupervisors = await axiosInstance.get(`/users/lecturers?course=${courseId}`);
+        const resSupervisors = await axiosInstance.get(
+          `/users/lecturers?course=${courseId}`
+        );
         console.log("👉 DATA LECTURERS:", resSupervisors.data.data);
 
         const filteredSupervisors = resSupervisors?.data?.data.filter(
-          user => user.userRole?.roleName?.toLowerCase() === 'supervisor');
+          (user) => user.userRole?.roleName?.toLowerCase() === "supervisor"
+        );
 
         setSupervisors(filteredSupervisors || null);
 
-        const getUser = await axiosInstance.get('/user/profile');
+        const getUser = await axiosInstance.get("/user/profile");
         setCurrentUser(getUser?.data?.data || {});
 
         if (decoded?.roleId === 5) {
@@ -63,9 +72,11 @@ function ProjectList() {
         }
       } catch (err) {
         console.log("ERROR FETCH:", err);
-        setError('Failed to fetch data');
+        setError("Failed to fetch data");
       } finally {
-        setTimeout(() => { setIsLoading(false); }, 1000);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
       }
     };
 
@@ -77,25 +88,27 @@ function ProjectList() {
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const handleSaveGroup = async () => {
-    if (!projectName || !supervisor || groupMembers.includes('')) {
-      setError('Please complete all fields.');
+    if (!projectName || !supervisor || groupMembers.includes("")) {
+      setError("Please complete all fields.");
       return;
     }
 
     const hasDuplicate = new Set(groupMembers).size !== groupMembers.length;
     if (hasDuplicate) {
-      setError('Group members must be unique.');
+      setError("Group members must be unique.");
       return;
     }
 
-    const selectedStudentIds = groupMembers.map(name => {
-      const student = students.find(s => s.userName === name);
-      return student?.userId;
-    }).filter(Boolean);
+    const selectedStudentIds = groupMembers
+      .map((name) => {
+        const student = students.find((s) => s.userName === name);
+        return student?.userId;
+      })
+      .filter(Boolean);
 
-    const supervisorObj = supervisors.find(s => s.userName === supervisor);
+    const supervisorObj = supervisors.find((s) => s.userName === supervisor);
     if (!supervisorObj) {
-      setError('Invalid supervisor selected.');
+      setError("Invalid supervisor selected.");
       return;
     }
 
@@ -103,20 +116,25 @@ function ProjectList() {
       projectName,
       supervisorId: supervisorObj.userId,
       teams: selectedStudentIds,
-      noBooth: boothNo
+      // noBooth: boothNumber,
     };
 
     try {
-      const response = await axiosInstance.post('/projects', data);
+      const response = await axiosInstance.post("/projects", data);
       const newProjectId = response?.data?.data?.projectId;
       navigate(`/dashboard/studentproject?projectId=${newProjectId}`);
     } catch (err) {
-      console.error('❌ Create project error:', err?.response?.data || err.message);
+      console.error(
+        "❌ Create project error:",
+        err?.response?.data || err.message
+      );
       if (err?.response?.data?.errors?.length > 0) {
         const error = err?.response?.data?.errors[0].message;
         return setError(error);
       }
-      setError(err.response?.data?.message || 'Gagal cipta projek. Sila semak semula.');
+      setError(
+        err.response?.data?.message || "Gagal cipta projek. Sila semak semula."
+      );
     }
   };
 
@@ -139,11 +157,19 @@ function ProjectList() {
             <div className="card p-4 shadow-sm">
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
                 <h6 className="fw-bold mb-3 mb-md-0">
-                  Project List{currentUser?.userCourse?.courseName ? ` - ${currentUser.userCourse.courseName}` : ''}
+                  Project List
+                  {currentUser?.userCourse?.courseName
+                    ? ` - ${currentUser.userCourse.courseName}`
+                    : ""}
                 </h6>
                 <div className="d-flex flex-md-row flex-column align-items-md-center gap-2 w-100 w-md-auto mt-3">
                   {roleId === 5 && !hasProject && (
-                    <button onClick={handleOpenModal} className="btn btn-info w-100 w-md-auto px-4 py-2">Create New</button>
+                    <button
+                      onClick={handleOpenModal}
+                      className="btn btn-info w-100 w-md-auto px-4 py-2"
+                    >
+                      Create New
+                    </button>
                   )}
                 </div>
               </div>
@@ -161,17 +187,40 @@ function ProjectList() {
                   </thead>
                   <tbody>
                     {projects.length === 0 ? (
-                      <tr><td colSpan="5">No projects available</td></tr>
+                      <tr>
+                        <td colSpan="5">No projects available</td>
+                      </tr>
                     ) : (
                       projects.map((proj, index) => (
                         <tr key={index}>
                           <td>{proj.projectName}</td>
-                          <td>{proj.penyelaras || proj.courseCoordinatorName || '-'}</td>
-                          <td>{proj.penyelia || proj.supervisor || proj.courseSupervisorName || '-'}</td>
-                          <td>{proj.isFinal === false ? 'In Progress' : 'Final'}</td>
                           <td>
-                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleViewProject(proj)}>View</button>
-                            <button className="btn btn-sm btn-outline-success" onClick={() => handleEditProject(proj.projectId)}>Edit</button>
+                            {proj.penyelaras ||
+                              proj.courseCoordinatorName ||
+                              "-"}
+                          </td>
+                          <td>
+                            {proj.penyelia ||
+                              proj.supervisor ||
+                              proj.courseSupervisorName ||
+                              "-"}
+                          </td>
+                          <td>
+                            {proj.isFinal === false ? "In Progress" : "Final"}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-outline-primary me-2"
+                              onClick={() => handleViewProject(proj)}
+                            >
+                              View
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-success"
+                              onClick={() => handleEditProject(proj.projectId)}
+                            >
+                              Edit
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -182,10 +231,26 @@ function ProjectList() {
 
               <nav className="d-flex justify-content-center mt-3">
                 <ul className="pagination pagination-sm mb-0">
-                  <li className="page-item disabled"><a className="page-link" href="#">‹</a></li>
-                  <li className="page-item active"><a className="page-link" href="#">1</a></li>
-                  <li className="page-item"><a className="page-link" href="#">2</a></li>
-                  <li className="page-item"><a className="page-link" href="#">›</a></li>
+                  <li className="page-item disabled">
+                    <a className="page-link" href="#">
+                      ‹
+                    </a>
+                  </li>
+                  <li className="page-item active">
+                    <a className="page-link" href="#">
+                      1
+                    </a>
+                  </li>
+                  <li className="page-item">
+                    <a className="page-link" href="#">
+                      2
+                    </a>
+                  </li>
+                  <li className="page-item">
+                    <a className="page-link" href="#">
+                      ›
+                    </a>
+                  </li>
                 </ul>
               </nav>
             </div>
@@ -202,11 +267,21 @@ function ProjectList() {
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>Project Name</Form.Label>
-                <Form.Control type="text" placeholder="Enter project name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
+                <Form.Control
+                  type="text"
+                  placeholder="Enter project name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                />
               </Form.Group>
               <Form.Label>Group Members</Form.Label>
               <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Your Name" value={currentUser.userName} readOnly />
+                <Form.Control
+                  type="text"
+                  placeholder="Your Name"
+                  value={currentUser.userName}
+                  readOnly
+                />
               </Form.Group>
               {[1, 2].map((i) => (
                 <Form.Group className="mb-2" key={i}>
@@ -216,9 +291,10 @@ function ProjectList() {
                       const updated = [...groupMembers];
                       updated[i] = e.target.value;
                       setGroupMembers(updated);
-                    }}>
+                    }}
+                  >
                     <option value="">--select member--</option>
-                    {students.map(student => (
+                    {students.map((student) => (
                       <option key={student.userId} value={student.userName}>
                         {student.userName}
                       </option>
@@ -228,29 +304,32 @@ function ProjectList() {
               ))}
               <Form.Group className="mb-3">
                 <Form.Label>Supervisor</Form.Label>
-                <Form.Select value={supervisor} onChange={(e) => setSupervisor(e.target.value)}>
+                <Form.Select
+                  value={supervisor}
+                  onChange={(e) => setSupervisor(e.target.value)}
+                >
                   <option value="">--select supervisor--</option>
                   {supervisors
-                    .filter(sup => sup.userRole?.roleName?.toLowerCase() === 'supervisor')
-                    .map(sup => (
-                      <option key={sup.userId} value={sup.userName}>{sup.userName}</option>
+                    .filter(
+                      (sup) =>
+                        sup.userRole?.roleName?.toLowerCase() === "supervisor"
+                    )
+                    .map((sup) => (
+                      <option key={sup.userId} value={sup.userName}>
+                        {sup.userName}
+                      </option>
                     ))}
                 </Form.Select>
               </Form.Group>
-              <Form.Group className="mb-3 me-5">
-              <Form.Label>No Booth</Form.Label>
-              <Form.Control className='border ps-2'
-                type="text"
-                placeholder="Contoh: B12"
-                value={boothNo}
-                onChange={(e) => setBoothNo(e.target.value)}
-              />
-            </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
-            <Button variant="primary" onClick={handleSaveGroup}>Save</Button>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleSaveGroup}>
+              Save
+            </Button>
           </Modal.Footer>
         </Modal>
 
@@ -262,27 +341,50 @@ function ProjectList() {
           <Modal.Body>
             {viewProject && (
               <div>
-                <p><strong>Project Name:</strong> {viewProject.projectName}</p>
-                <p><strong>Group Members:</strong></p>
+                <p>
+                  <strong>Project Name:</strong> {viewProject.projectName}
+                </p>
+                <p>
+                  <strong>No Booth:</strong>{" "}
+                  {/* {viewProject.boothNumber || viewProject.noBooth || "-"} */}
+                </p>
+                <p>
+                  <strong>Group Members:</strong>
+                </p>
                 <ul>
                   {viewProject.projectTeamMembers.map((member, idx) => (
                     <li key={idx}>{member.userName}</li>
                   ))}
                 </ul>
-                <p><strong>Supervisor:</strong> {viewProject.courseSupervisorName || '-'}</p>
-                <p><strong>Status:</strong> {viewProject.isFinal === false ? 'in Progress' : 'Final'}</p>
-                {viewProject.projectRequirements.map((req, idx) => (
+                <p>
+                  <strong>Supervisor:</strong>{" "}
+                  {viewProject.courseSupervisorName || "-"}
+                </p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  {viewProject.isFinal === false ? "in Progress" : "Final"}
+                </p>
+                {viewProject.projectRequirements.map((req, idx) =>
                   req.fieldType === "file" ? (
-                    <p key={idx}><strong>{req.fieldName}:</strong> <a href={req.fieldValue} target="_blank">View</a></p>
+                    <p key={idx}>
+                      <strong>{req.fieldName}:</strong>{" "}
+                      <a href={req.fieldValue} target="_blank">
+                        View
+                      </a>
+                    </p>
                   ) : (
-                    <p key={idx}><strong>{req.fieldName}:</strong> {req.fieldValue}</p>
+                    <p key={idx}>
+                      <strong>{req.fieldName}:</strong> {req.fieldValue}
+                    </p>
                   )
-                ))}
+                )}
               </div>
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseViewModal}>Close</Button>
+            <Button variant="secondary" onClick={handleCloseViewModal}>
+              Close
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>

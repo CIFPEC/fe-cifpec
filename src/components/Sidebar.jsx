@@ -97,6 +97,12 @@ function Sidebar({ show }) {
       show: [1].includes(roleId),
       items: [{ label: "Course Lists", link: "/dashboard/course" }],
     },
+    {
+      id: "category",
+      label: "Category",
+      show: [1].includes(roleId),
+      items: [{ label: "Category Lists", link: "/dashboard/category" }],
+    },
   ];
 
   return (

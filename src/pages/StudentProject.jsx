@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import Main from '../components/Main';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import axiosInstance from '../utils/axiosInstance';
+import React, { useEffect, useState } from "react";
+import Main from "../components/Main";
+import { useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import axiosInstance from "../utils/axiosInstance";
 
 function StudentProject() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const projectId = queryParams.get('projectId');
+  const projectId = queryParams.get("projectId");
 
-  const [projectName, setProjectName] = useState('');
-  const [courseName, setCourseName] = useState('');
+  const [projectName, setProjectName] = useState("");
+  const [courseName, setCourseName] = useState("");
   const [courseList, setCourseList] = useState([]);
-  const [groupMembers, setGroupMembers] = useState(['', '', '']);
-  const [supervisor, setSupervisor] = useState('');
+  const [groupMembers, setGroupMembers] = useState(["", "", ""]);
+  const [supervisor, setSupervisor] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [batchRequirements, setBatchRequirements] = useState([]);
   const [requirementValues, setRequirementValues] = useState({});
   const [oldRequirements, setOldRequirements] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [projectThumbnail, setProjectThumbnail] = useState(null);
-  const [fieldName, setFieldName] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const bidangOptions = ['Multimedia', 'AI', 'IoT', 'Robotic', 'Web App'];
+  const [fieldName, setFieldName] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [bidangOptions, setBidangOptions] = useState([]);
 
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   const decoded = token ? jwtDecode(token) : {};
   const courseId = decoded?.courseId;
   const batchId = decoded?.batchId;
@@ -33,12 +33,12 @@ function StudentProject() {
   useEffect(() => {
     const getCourseList = async () => {
       try {
-        const res = await axiosInstance.get('/courses');
+        const res = await axiosInstance.get("/courses");
         setCourseList(res?.data?.data || []);
-        const userCourse = res?.data?.data.find(c => c.courseId === courseId);
-        setCourseName(userCourse?.courseName || '');
+        const userCourse = res?.data?.data.find((c) => c.courseId === courseId);
+        setCourseName(userCourse?.courseName || "");
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error("Error fetching courses:", error);
       }
     };
     getCourseList();
@@ -47,18 +47,22 @@ function StudentProject() {
       setIsEditMode(true);
       const getProject = async () => {
         try {
-          const res = await axiosInstance.get('/user/projects');
+          const res = await axiosInstance.get("/user/projects");
           const allProjects = res?.data?.data || [];
-          const project = allProjects.find(p => String(p.projectId) === String(projectId));
+          const project = allProjects.find(
+            (p) => String(p.projectId) === String(projectId)
+          );
 
           if (project) {
             setProjectName(project.projectName);
-            setGroupMembers(project.projectTeamMembers.map(m => m.userName || ''));
-            setSupervisor(project.courseSupervisorName || '');
+            setGroupMembers(
+              project.projectTeamMembers.map((m) => m.userName || "")
+            );
+            setSupervisor(project.courseSupervisorName || "");
             setOldRequirements(project?.projectRequirements || []);
           }
         } catch (error) {
-          console.error('Error fetching user projects:', error);
+          console.error("Error fetching user projects:", error);
         }
       };
       getProject();
@@ -71,17 +75,29 @@ function StudentProject() {
     fetchBatch();
   }, [courseId, projectId]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axiosInstance.get("/category");
+        setBidangOptions(res?.data?.data || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const handleRequirementChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
-      setRequirementValues(formData => ({
+      setRequirementValues((formData) => ({
         ...formData,
         [name]: files[0],
       }));
     } else {
-      setRequirementValues(formData => ({
+      setRequirementValues((formData) => ({
         ...formData,
-        [name]: value === '' ? '' : value,
+        [name]: value === "" ? "" : value,
       }));
     }
   };
@@ -89,7 +105,7 @@ function StudentProject() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!projectThumbnail) {
-      setErrorMsg('Sila muat naik gambar Project Thumbnail.');
+      setErrorMsg("Sila muat naik gambar Project Thumbnail.");
       return;
     }
 
@@ -102,14 +118,14 @@ function StudentProject() {
       }
     });
 
-    formDataToSend.append('projectThumbnail', projectThumbnail);
+    formDataToSend.append("projectThumbnail", projectThumbnail);
 
     try {
       await axiosInstance.patch(`/user/projects/${projectId}`, formDataToSend);
       setIsSubmitted(true);
-      navigate('/dashboard/projectlist');
+      navigate("/dashboard/projectlist");
     } catch (err) {
-      console.error('Error updating project:', err);
+      console.error("Error updating project:", err);
     }
   };
 
@@ -124,7 +140,7 @@ function StudentProject() {
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                  <label className="form-label fw-bold">Project Name</label>
+                    <label className="form-label fw-bold">Project Name</label>
                     <input
                       type="text"
                       className="form-control"
@@ -134,7 +150,7 @@ function StudentProject() {
                     />
                   </div>
                   <div className="col-md-6 mb-3">
-                  <label className="form-label fw-bold">Course</label>
+                    <label className="form-label fw-bold">Course</label>
                     <input
                       type="text"
                       className="form-control"
@@ -144,7 +160,7 @@ function StudentProject() {
                   </div>
 
                   <div className="col-md-4 mb-3">
-                  <label className="form-label fw-bold">Your Name</label>
+                    <label className="form-label fw-bold">Your Name</label>
                     <input
                       type="text"
                       className="form-control"
@@ -154,7 +170,7 @@ function StudentProject() {
                     />
                   </div>
                   <div className="col-md-4 mb-3">
-                  <label className="form-label fw-bold">Member Name 1</label>
+                    <label className="form-label fw-bold">Member Name 1</label>
                     <input
                       type="text"
                       className="form-control"
@@ -164,7 +180,7 @@ function StudentProject() {
                     />
                   </div>
                   <div className="col-md-4 mb-3">
-                  <label className="form-label fw-bold">Member Name 2</label>
+                    <label className="form-label fw-bold">Member Name 2</label>
                     <input
                       type="text"
                       className="form-control"
@@ -183,13 +199,15 @@ function StudentProject() {
                     >
                       <option value="">--Pilih Bidang--</option>
                       {bidangOptions.map((opt, idx) => (
-                        <option key={idx} value={opt}>{opt}</option>
+                        <option key={opt.id} value={opt.name}>
+                          {opt.name}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div className="col-md-6 mb-3">
-                  <label className="form-label fw-bold">Supervisor</label>
+                    <label className="form-label fw-bold">Supervisor</label>
                     <input
                       type="text"
                       className="form-control"
@@ -200,7 +218,9 @@ function StudentProject() {
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-bold">Project Thumbnail</label>
+                    <label className="form-label fw-bold">
+                      Project Thumbnail
+                    </label>
                     <input
                       type="file"
                       className="form-control"
@@ -214,11 +234,18 @@ function StudentProject() {
                   <div className="mt-4">
                     <h6 className="fw-bold">Additional Information</h6>
                     {batchRequirements.map((req, index) => {
-                      const fieldValue = requirementValues[req.tag] || oldRequirements.find(field => field.fieldName === req.label)?.fieldValue || '';
+                      const fieldValue =
+                        requirementValues[req.tag] ||
+                        oldRequirements.find(
+                          (field) => field.fieldName === req.label
+                        )?.fieldValue ||
+                        "";
                       return (
                         <div className="mb-3" key={index}>
-                          <label className="form-label fw-bold">{req.label}</label>
-                          {req.type === 'text' ? (
+                          <label className="form-label fw-bold">
+                            {req.label}
+                          </label>
+                          {req.type === "text" ? (
                             <input
                               type="text"
                               className="form-control"
@@ -230,10 +257,18 @@ function StudentProject() {
                             />
                           ) : (
                             <div>
-                              {fieldValue && typeof fieldValue === 'string' && /\.(jpg|jpeg|png|gif)$/i.test(fieldValue) ? (
-                                <img src={fieldValue} alt="Uploaded" style={{ maxWidth: '200px', height: 'auto' }} />
+                              {fieldValue &&
+                              typeof fieldValue === "string" &&
+                              /\.(jpg|jpeg|png|gif)$/i.test(fieldValue) ? (
+                                <img
+                                  src={fieldValue}
+                                  alt="Uploaded"
+                                  style={{ maxWidth: "200px", height: "auto" }}
+                                />
                               ) : fieldValue ? (
-                                <a href={fieldValue} target="_blank">View uploaded file</a>
+                                <a href={fieldValue} target="_blank">
+                                  View uploaded file
+                                </a>
                               ) : null}
                               <input
                                 type="file"
@@ -252,10 +287,18 @@ function StudentProject() {
                 )}
 
                 <div className="d-flex justify-content-between">
-                  <button type="button" className="btn btn-outline-secondary" onClick={() => navigate('/dashboard/projectlist')}>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => navigate("/dashboard/projectlist")}
+                  >
                     Back to Project List
                   </button>
-                  <button type="submit" className="btn btn-success px-4" disabled={!isEditMode && isSubmitted}>
+                  <button
+                    type="submit"
+                    className="btn btn-success px-4"
+                    disabled={!isEditMode && isSubmitted}
+                  >
                     Submit
                   </button>
                 </div>

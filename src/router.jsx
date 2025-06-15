@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Profile from './pages/Profile.jsx';
+import Profile from "./pages/Profile.jsx";
 import Course from "./pages/Course.jsx";
 import Batch from "./pages/Batch.jsx";
 import SetupBatch from "./pages/SetupBatch.jsx";
@@ -16,6 +16,7 @@ import VerifyEmailPage from "./pages/VerifyEmail.jsx";
 import Homepage from "./pages/Homepage.jsx";
 import PrivateRoute from "./components/PrivateRoute";
 import { Error401, Error403, Error404 } from "./pages/ErrorPages";
+import Category from "./pages/Category.jsx";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
     element: <PrivateRoute element={<WebSetting />} roles={[2]} />,
   },
   {
+    path: "/dashboard/category",
+    element: <PrivateRoute element={<Category />} roles={[1]} />,
+  },
+  {
     path: "/error/401",
     element: <Error401 />,
   },
@@ -94,8 +99,7 @@ const router = createBrowserRouter([
   {
     path: "*",
     element: <Error404 />,
-  }
-  
+  },
 ]);
 
 export default router;
