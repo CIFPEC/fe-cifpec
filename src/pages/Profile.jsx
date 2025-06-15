@@ -14,9 +14,8 @@ function Profile() {
     userEmail: "",
     userUsername: "",
     userGender: "",
-    userPhone: "",
-    Nric: "",
-    userCourseName: "-",
+    userPhoneNumber: "",
+    nric: "",
     profileImage: null,
   });
   const [formErrors, setFormErrors] = useState({});
@@ -46,9 +45,8 @@ function Profile() {
             ? data.userGender.charAt(0).toUpperCase() +
               data.userGender.slice(1).toLowerCase()
             : "",
-          userPhone: data.userPhone || "",
-          Nric: data.nric || "",
-          userCourseName: data.userCourse?.courseName || "-",
+          userPhoneNumber: data.userPhoneNumber || "",
+          nric: data.nric || "",
           profileImage: data.userProfileImage || null,
         });
 
@@ -112,8 +110,8 @@ function Profile() {
     form.append("userName", formData.userName);
     form.append("userUsername", formData.userUsername);
     form.append("userGender", formData.userGender);
-    form.append("userPhone", formData.userPhone);
-    form.append("nric", formData.Nric);
+    form.append("userPhone", formData.userPhoneNumber);
+    form.append("nric", formData.nric);
     if (formData.profileImage instanceof File) {
       form.append("userProfileImage", formData.profileImage);
     }
@@ -128,6 +126,7 @@ function Profile() {
         setShowRequestButton(true);
       }
     } catch (err) {
+      console.log("ERROR: ", err);
       const errors = err.response?.data?.errors || [];
       const newErrors = {};
       errors.forEach((e) => {
@@ -265,9 +264,13 @@ function Profile() {
                     <div className="col-md-8">
                       <form onSubmit={updateProfile}>
                         <div className="mb-3">
-                          <div className="form-control-plaintext">
-                            {formData.userEmail}
-                          </div>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Email"
+                            value={formData.userEmail}
+                            readOnly
+                          />
                         </div>
                         <div className="mb-3">
                           <input
@@ -296,6 +299,21 @@ function Profile() {
                           {formErrors.userUsername && (
                             <div style={{ color: "red" }}>
                               {formErrors.userUsername}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mb-3">
+                          <input
+                            type="number"
+                            className="form-control"
+                            name="nric"
+                            placeholder="NRIC / IC Number"
+                            value={formData.nric}
+                            onChange={handleFormChange}
+                          />
+                          {formErrors.nric && (
+                            <div style={{ color: "red" }}>
+                              {formErrors.nric}
                             </div>
                           )}
                         </div>
@@ -347,14 +365,14 @@ function Profile() {
                           <input
                             type="tel"
                             className="form-control"
-                            name="userPhone"
+                            name="userPhoneNumber"
                             placeholder="Phone Number"
-                            value={formData.userPhone}
+                            value={formData.userPhoneNumber}
                             onChange={handleFormChange}
                           />
-                          {formErrors.userPhone && (
+                          {formErrors.userPhoneNumber && (
                             <div style={{ color: "red" }}>
-                              {formErrors.userPhone}
+                              {formErrors.userPhoneNumber}
                             </div>
                           )}
                         </div>

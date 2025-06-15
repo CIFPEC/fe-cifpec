@@ -116,7 +116,6 @@ function ProjectList() {
       projectName,
       supervisorId: supervisorObj.userId,
       teams: selectedStudentIds,
-      // noBooth: boothNumber,
     };
 
     try {
@@ -215,12 +214,16 @@ function ProjectList() {
                             >
                               View
                             </button>
-                            <button
-                              className="btn btn-sm btn-outline-success"
-                              onClick={() => handleEditProject(proj.projectId)}
-                            >
-                              Edit
-                            </button>
+                            {roleId === 5 && (
+                              <button
+                                className="btn btn-sm btn-outline-success"
+                                onClick={() =>
+                                  handleEditProject(proj.projectId)
+                                }
+                              >
+                                Edit
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))
@@ -321,6 +324,16 @@ function ProjectList() {
                     ))}
                 </Form.Select>
               </Form.Group>
+              <Form.Group className="mb-3 me-5">
+                <Form.Label>No Booth</Form.Label>
+                <Form.Control
+                  className="border ps-2"
+                  type="text"
+                  placeholder="Contoh: B12"
+                  value={boothNo}
+                  onChange={(e) => setBoothNo(e.target.value)}
+                />
+              </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>
@@ -344,18 +357,27 @@ function ProjectList() {
                 <p>
                   <strong>Project Name:</strong> {viewProject.projectName}
                 </p>
-                <p>
-                  <strong>No Booth:</strong>{" "}
-                  {/* {viewProject.boothNumber || viewProject.noBooth || "-"} */}
-                </p>
-                <p>
+                <div>
                   <strong>Group Members:</strong>
+                  <ul>
+                    {viewProject.projectTeamMembers.map((member, idx) => (
+                      <li key={idx}>{member.userName}</li>
+                    ))}
+                  </ul>
+                </div>
+                <p>
+                  <strong>Batch Name:</strong> {viewProject.batchName}
                 </p>
-                <ul>
-                  {viewProject.projectTeamMembers.map((member, idx) => (
-                    <li key={idx}>{member.userName}</li>
-                  ))}
-                </ul>
+                <p>
+                  <strong>Booth Number:</strong> {viewProject.boothNumber}
+                </p>
+                <p>
+                  <strong>Category:</strong>{" "}
+                  {viewProject?.category?.categoryName}
+                </p>
+                <p>
+                  <strong>Course Name:</strong> {viewProject?.courseName}
+                </p>
                 <p>
                   <strong>Supervisor:</strong>{" "}
                   {viewProject.courseSupervisorName || "-"}

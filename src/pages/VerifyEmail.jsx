@@ -33,7 +33,12 @@ export default function VerifyEmailPage() {
       const res = await axiosInstance.post('/auth/email/verify', payload, {
         headers: { 'Verify-Token': verifyToken }
       });
-      localStorage.setItem("accessToken",res?.data?.data?.token)
+      const token = res?.data?.data?.token;
+      if(!token){
+        await axiosInstance.delete('/auth/logout');
+        throw new Error('Token not found in response');
+      }
+      localStorage.setItem("accessToken",token)
       setMessage('Verification successful! Your email has been verified.');
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {

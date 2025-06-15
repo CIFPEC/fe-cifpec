@@ -23,7 +23,8 @@ function StudentProject() {
   const [projectThumbnail, setProjectThumbnail] = useState(null);
   const [fieldName, setFieldName] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [bidangOptions, setBidangOptions] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [dataToUpdate, setDataToUpdate] = useState({});
 
   const token = localStorage.getItem("accessToken");
   const decoded = token ? jwtDecode(token) : {};
@@ -42,6 +43,16 @@ function StudentProject() {
       }
     };
     getCourseList();
+
+    const getCategories = async () => {
+      try {
+        const res = await axiosInstance.get("/categories");
+        setCategories(res?.data?.data || []);
+      } catch (error) {
+        console.log("Error fetching categories:", error);
+      }
+    };
+    getCategories();
 
     if (projectId) {
       setIsEditMode(true);
@@ -75,24 +86,12 @@ function StudentProject() {
     fetchBatch();
   }, [courseId, projectId]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axiosInstance.get("/category");
-        setBidangOptions(res?.data?.data || []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    fetchCategories();
-  }, []);
-
   const handleRequirementChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
       setRequirementValues((formData) => ({
         ...formData,
-        [name]: files[0],
+        name: files[0],
       }));
     } else {
       setRequirementValues((formData) => ({
@@ -105,7 +104,7 @@ function StudentProject() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!projectThumbnail) {
-      setErrorMsg("Sila muat naik gambar Project Thumbnail.");
+      setErrorMsg("Please upload a project thumbnail image.");
       return;
     }
 
@@ -119,6 +118,8 @@ function StudentProject() {
     });
 
     formDataToSend.append("projectThumbnail", projectThumbnail);
+    formDataToSend.append("projectName", projectName);
+    formDataToSend.append("categoryId", fieldName);
 
     try {
       await axiosInstance.patch(`/user/projects/${projectId}`, formDataToSend);
@@ -136,7 +137,9 @@ function StudentProject() {
           <div className="col-12 col-md-10 col-lg-8">
             <div className="tab-pane fade show active shadow p-4 rounded bg-white">
               <h5 className="fw-bold">Update Project</h5>
-              {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+              {errorMsg && setTimeout(() => setErrorMsg(""), 5000) && (
+                <div className="alert alert-danger text-white">{errorMsg}</div>
+              )}
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
@@ -191,16 +194,18 @@ function StudentProject() {
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-bold">Bidang Projek</label>
+                    <label className="form-label fw-bold">
+                      Project Category
+                    </label>
                     <select
                       className="form-select"
                       value={fieldName}
                       onChange={(e) => setFieldName(e.target.value)}
                     >
-                      <option value="">--Pilih Bidang--</option>
-                      {bidangOptions.map((opt, idx) => (
-                        <option key={opt.id} value={opt.name}>
-                          {opt.name}
+                      <option value="">-- Choose Category --</option>
+                      {categories.map((opt, idx) => (
+                        <option key={idx} value={opt.categoryId}>
+                          {opt.categoryName}
                         </option>
                       ))}
                     </select>
