@@ -19,7 +19,7 @@ function Category() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axiosInstance.get("/category");
+      const response = await axiosInstance.get("/categories");
       setCategoryList(response.data?.data || []);
     } catch (error) {
       console.error("Gagal ambil kategori:", error);
@@ -37,7 +37,7 @@ function Category() {
 
   const handleOpenEditModal = (index) => {
     setEditCategoryIndex(index);
-    setCategoryName(categoryList[index]?.name);
+    setCategoryName(categoryList[index]?.categoryName);
     setApiError("");
     setShowEditModal(true);
   };
@@ -53,7 +53,7 @@ function Category() {
     if (!categoryName.trim()) return;
 
     try {
-      await axiosInstance.post("/category", { name: categoryName });
+      await axiosInstance.post("/categories", { categoryName });
       handleCloseCreateModal();
       fetchCategories();
     } catch (error) {
@@ -69,9 +69,9 @@ function Category() {
     if (!categoryName.trim()) return;
 
     try {
-      const categoryId = categoryList[editCategoryIndex]?.id;
-      await axiosInstance.patch(`/category/${categoryId}`, {
-        name: categoryName,
+      const categoryId = categoryList[editCategoryIndex]?.categoryId;
+      await axiosInstance.patch(`/categories/${categoryId}`, {
+        categoryName,
       });
       handleCloseEditModal();
       fetchCategories();
@@ -113,7 +113,7 @@ function Category() {
                     ) : (
                       categoryList.map((cat, index) => (
                         <tr key={index}>
-                          <td>{cat?.name || "-"}</td>
+                          <td>{cat?.categoryName || "-"}</td>
                           <td>
                             <div className="d-flex justify-content-center gap-2">
                               <button

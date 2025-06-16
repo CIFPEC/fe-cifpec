@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-
 const baseURL = import.meta.env.VITE_API_URL;
 
 const axiosInstance = axios.create({
@@ -15,56 +14,46 @@ axiosInstance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('accessToken');
   let attempt = 0;
 
-
   if (token && token.split('.').length === 3) {
-    for(attempt; attempt <= MAX_RETRIES, attempt++;){
-      try {
-        const decoded = jwtDecode(token);
-        const now = Date.now() / 1000;
-  
-        if (decoded.exp < now) {
-          const refreshRes = await axios.get(`${baseURL}/token`, {
-            withCredentials: true
-          });
-  
+    const decoded = jwtDecode(token);
+    const now = Date.now() / 1000;
+
+    if (decoded.exp < now) {
+      while (attempt < MAX_RETRIES) {
+        try {
+          const refreshRes = await axios.get(`${baseURL}/token`, { withCredentials: true });
           const newToken = refreshRes.data?.data?.token;
-          if(!newToken) throw new Error(`No access token returned`);
+          if (!newToken) throw new Error('No access token returned');
 
           localStorage.setItem('accessToken', newToken);
           config.headers.Authorization = `Bearer ${newToken}`;
-        } else {
-          config.headers.Authorization = `Bearer ${token}`;
+          return config;
+        } catch (err) {
+          attempt++;
+          console.warn(`Renew attempt ${attempt} failed`, err);
+          await new Promise((res) => setTimeout(res, 1000));
         }
-      } catch (err) {
-        console.warn(`Renew attempt ${attempt} failed`, err);
-
-        await new Promise((resolve) => setTimeout(resolve,1000));
       }
 
-      console.log('Renew token failed after retry. Log out');
       await axiosInstance.delete('/auth/logout');
       localStorage.removeItem('accessToken');
       window.location.href = '/login';
-      return Promise.reject(error)
+      return Promise.reject(new Error('Token expired and refresh failed'));
+    } else {
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 
   return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+}, (error) => Promise.reject(error));
 
-axiosInstance.interceptors.response.use((response) => {
-  return response;
-}, async (error) => {
+axiosInstance.interceptors.response.use((response) => response, async (error) => {
   const originalRequest = error.config;
 
   if (error.response && error.response.status === 401 && !originalRequest._retry) {
     originalRequest._retry = true;
     try {
-      const refreshRes = await axios.get(`${baseURL}/token`, {
-        withCredentials: true
-      });
+      const refreshRes = await axios.get(`${baseURL}/token`, { withCredentials: true });
       const newToken = refreshRes.data?.data?.token;
       localStorage.setItem('accessToken', newToken);
       originalRequest.headers.Authorization = `Bearer ${newToken}`;
