@@ -4,6 +4,7 @@ import Main from "../components/Main";
 import { Chart } from "chart.js/auto";
 import axiosInstance from "../utils/axiosInstance";
 import { jwtDecode } from "jwt-decode";
+import Loading from "../components/Loading";
 
 function Dashboard() {
   const [dashboardData, setDashboardData] = useState({
@@ -20,8 +21,11 @@ function Dashboard() {
   const [selectedBatchId, setSelectedBatchId] = useState(null);
   const [currentUser, setCurrentUser] = useState({});
   const [selectedCourse, setSelectedCourse] = useState("");
+  const [courses, setCourses] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [categories, setCategories] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleExportPDF = () => {
     import("jspdf").then((jsPDF) => {
@@ -41,7 +45,7 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       const decoded = jwtDecode(token);
       setCurrentUser(decoded);
@@ -84,8 +88,18 @@ function Dashboard() {
       }
     };
 
+    const fetchCourseAndCategory = async ()=> {
+      const getCourse = await axiosInstance.get('/courses');
+      setCourses(getCourse?.data?.data || []);
+
+      const getCategory = await axiosInstance.get('/categories');
+      setCategories(getCategory?.data?.data || []);
+    }
+
+    fetchCourseAndCategory();
     fetchDashboard();
     fetchBatchList();
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -94,7 +108,7 @@ function Dashboard() {
     const fetchStudentProjects = async () => {
       try {
         const res = await axiosInstance.get(
-          `/batches/${selectedBatchId}/projects?page=1&limit=10`
+          `/batches/${selectedBatchId}/projects?course=${selectedCourse}&category=${selectedCategory}&page=1&limit=10`
         );
         console.log("Project API result:", res.data);
         setStudentProjects(res.data?.data || []);
@@ -104,7 +118,7 @@ function Dashboard() {
     };
 
     fetchStudentProjects();
-  }, [selectedBatchId]);
+  }, [selectedBatchId,selectedCourse,selectedCategory]);
 
   useEffect(() => {
     if (currentUser.role === "admin") {
@@ -215,6 +229,8 @@ function Dashboard() {
       });
     }
 
+    setIsLoading(false);
+
     return () => {
       if (chart) chart.destroy();
     };
@@ -246,6 +262,8 @@ function Dashboard() {
       icon: "image",
     },
   ];
+
+  if(isLoading) return <Loading/>;
 
   return (
     <Main>
@@ -283,7 +301,7 @@ function Dashboard() {
           <div className="col-12 col-md-6">
             <label className="form-label fw-semibold">Select Batch</label>
             <select
-              className="form-select"
+              className="form-select ps-2"
               value={selectedBatchId || ""}
               onChange={(e) => setSelectedBatchId(e.target.value)}
             >
@@ -379,20 +397,20 @@ function Dashboard() {
             </div>
           </div>
         </div>
-        {currentUser.role === "admin" && (
+        {currentUser.roleName === "admin" && (
           <div className="row mb-4">
             <div className="col-md-6">
               <label className="form-label fw-semibold">Filter by Course</label>
               <select
-                className="form-select"
+                className="form-select ps-2"
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
               >
                 <option value="">All Courses</option>
-                {[...new Set(studentProjects.map((p) => p.courseName))].map(
+                {courses && courses.map(
                   (course, i) => (
-                    <option key={i} value={course}>
-                      {course}
+                    <option key={i} value={course.courseId}>
+                      {course.courseName}
                     </option>
                   )
                 )}
@@ -403,18 +421,14 @@ function Dashboard() {
                 Filter by Category
               </label>
               <select
-                className="form-select"
+                className="form-select ps-2"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">All Categories</option>
-                {[
-                  ...new Set(
-                    studentProjects.map((p) => p.category?.categoryName)
-                  ),
-                ].map((cat, i) => (
-                  <option key={i} value={cat}>
-                    {cat}
+                {categories && categories.map((cat, i) => (
+                  <option key={i} value={cat.categoryId}>
+                    {cat.categoryName}
                   </option>
                 ))}
               </select>
