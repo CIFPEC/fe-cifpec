@@ -20,7 +20,6 @@ const AppWrapper = ({ children }) => {
           document.getElementsByTagName('head')[0].appendChild(link);
         }
 
-        console.log('Site Settings:', data);
       } catch (err) {
         console.error('Failed to load site settings:', err);
       }

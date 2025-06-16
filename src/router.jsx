@@ -9,7 +9,6 @@ import SetupBatch from "./pages/SetupBatch.jsx";
 import LectureList from "./pages/LectureList.jsx";
 import StudentProject from "./pages/StudentProject.jsx";
 import UserRequest from "./pages/UserRequest.jsx";
-import ProjectRequirement from "./pages/ProjectRequirement.jsx";
 import ProjectList from "./pages/ProjectList.jsx";
 import WebSetting from "./pages/WebSetting.jsx";
 import VerifyEmailPage from "./pages/VerifyEmail.jsx";
@@ -62,10 +61,6 @@ const router = createBrowserRouter([
   {
     path: "/dashboard/userrequest",
     element: <PrivateRoute element={<UserRequest />} roles={[1]} />,
-  },
-  {
-    path: "/dashboard/projectrequirement",
-    element: <PrivateRoute element={<ProjectRequirement />} roles={[1]} />,
   },
   {
     path: "/dashboard/projectlist",

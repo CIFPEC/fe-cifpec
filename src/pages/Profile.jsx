@@ -318,30 +318,6 @@ function Profile() {
                           )}
                         </div>
                         <div className="mb-3">
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="Nric"
-                            placeholder="No Kad Pengenalan"
-                            value={formData.Nric}
-                            onChange={handleFormChange}
-                          />
-                          {formErrors.Nric && (
-                            <div style={{ color: "red" }}>
-                              {formErrors.Nric}
-                            </div>
-                          )}
-                        </div>
-                        <div className="mb-3">
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="userCourseName"
-                            value={formData.userCourseName}
-                            disabled
-                          />
-                        </div>
-                        <div className="mb-3">
                           <select
                             className="form-select"
                             name="userGender"

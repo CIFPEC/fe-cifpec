@@ -66,14 +66,6 @@ function Sidebar({ show }) {
       show: [1, 3, 4, 5].includes(roleId),
       items: [
         { label: "Project Lists", link: "/dashboard/projectlist" },
-        ...(roleId === 1
-          ? [
-              {
-                label: "Project Lists (Admin)",
-                link: "/dashboard/projectrequirement",
-              },
-            ]
-          : []),
       ],
     },
     {

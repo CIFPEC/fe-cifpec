@@ -24,6 +24,7 @@ function StudentProject() {
   const [fieldName, setFieldName] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [categories, setCategories] = useState([]);
+  const [boothNumber, setBoothNumber] = useState("");
   const [dataToUpdate, setDataToUpdate] = useState({});
 
   const token = localStorage.getItem("accessToken");
@@ -69,6 +70,8 @@ function StudentProject() {
             setGroupMembers(
               project.projectTeamMembers.map((m) => m.userName || "")
             );
+            setBoothNumber(project.boothNumber);
+            setFieldName(project?.category?.categoryId);
             setSupervisor(project.courseSupervisorName || "");
             setOldRequirements(project?.projectRequirements || []);
           }
@@ -78,7 +81,7 @@ function StudentProject() {
       };
       getProject();
     }
-
+    
     const fetchBatch = async () => {
       const res = await axiosInstance.get(`/batches/${batchId}`);
       setBatchRequirements(res?.data?.data?.projectRequirements);
@@ -137,101 +140,60 @@ function StudentProject() {
           <div className="col-12 col-md-10 col-lg-8">
             <div className="tab-pane fade show active shadow p-4 rounded bg-white">
               <h5 className="fw-bold">Update Project</h5>
-              {errorMsg && setTimeout(() => setErrorMsg(""), 5000) && (
-                <div className="alert alert-danger text-white">{errorMsg}</div>
-              )}
+              {errorMsg && setTimeout(() => setErrorMsg(""), 5000) && <div className="alert alert-danger text-white">{errorMsg}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
                     <label className="form-label fw-bold">Project Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Project Name"
-                      value={projectName}
-                      onChange={(e) => setProjectName(e.target.value)}
-                    />
+                    <input type="text" className="form-control" placeholder="Project Name" value={projectName} onChange={e => setProjectName(e.target.value)} />
                   </div>
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-bold">Course</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={courseName}
-                      readOnly
-                    />
+                    <label className="form-label fw-bold">Course Name</label>
+                    <input type="text" className="form-control" value={courseName} readOnly />
                   </div>
 
                   <div className="col-md-4 mb-3">
                     <label className="form-label fw-bold">Your Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Member 1 Name"
-                      value={groupMembers[0]}
-                      readOnly
-                    />
+                    <input type="text" className="form-control" placeholder="Member 1 Name" value={groupMembers[0]} readOnly />
                   </div>
                   <div className="col-md-4 mb-3">
                     <label className="form-label fw-bold">Member Name 1</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Member 2 Name"
-                      value={groupMembers[1]}
-                      readOnly
-                    />
+                    <input type="text" className="form-control" placeholder="Member 2 Name" value={groupMembers[1]} readOnly />
                   </div>
                   <div className="col-md-4 mb-3">
                     <label className="form-label fw-bold">Member Name 2</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Member 3 Name"
-                      value={groupMembers[2]}
-                      readOnly
-                    />
+                    <input type="text" className="form-control" placeholder="Member 3 Name" value={groupMembers[2]} readOnly />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-bold">
-                      Project Category
-                    </label>
-                    <select
-                      className="form-select"
-                      value={fieldName}
-                      onChange={(e) => setFieldName(e.target.value)}
-                    >
-                      <option value="">-- Choose Category --</option>
-                      {categories.map((opt, idx) => (
-                        <option key={idx} value={opt.categoryId}>
-                          {opt.categoryName}
-                        </option>
-                      ))}
-                    </select>
+                    <label className="form-label fw-bold">Supervisor Name</label>
+                    <input type="text" className="form-control" placeholder="Supervisor Name" value={supervisor} readOnly />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-bold">Supervisor</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Supervisor Name"
-                      value={supervisor}
-                      readOnly
-                    />
+                    <label className="form-label fw-bold">Booth Number</label>
+                    <input type="text" className="form-control" placeholder="Booth Number" value={boothNumber || "-"} readOnly />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label className="form-label fw-bold">
-                      Project Thumbnail
-                    </label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      accept="image/*"
-                      onChange={(e) => setProjectThumbnail(e.target.files[0])}
-                    />
+                    <label className="form-label fw-bold">Project Category</label>
+                    {fieldName !== "" ? (
+                      <input type="text" className="form-control" placeholder="Project Category" value={categories[fieldName].categoryName} readOnly />
+                    ):(
+                      <select className="form-select" value={fieldName} onChange={e => setFieldName(e.target.value)}>
+                        <option value="">-- Choose Category --</option>
+                        {categories && categories.map((opt, idx) => {
+                          return ( <option key={idx} value={opt.categoryId}>
+                            {opt.categoryName}
+                          </option>)
+                        })}
+                      </select>
+                    )}
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-bold">Project Thumbnail</label>
+                    <input type="file" className="form-control" accept="image/*" onChange={e => setProjectThumbnail(e.target.files[0])} />
                   </div>
                 </div>
 
@@ -239,17 +201,10 @@ function StudentProject() {
                   <div className="mt-4">
                     <h6 className="fw-bold">Additional Information</h6>
                     {batchRequirements.map((req, index) => {
-                      const fieldValue =
-                        requirementValues[req.tag] ||
-                        oldRequirements.find(
-                          (field) => field.fieldName === req.label
-                        )?.fieldValue ||
-                        "";
+                      const fieldValue = requirementValues[req.tag] || oldRequirements.find(field => field.fieldName === req.label)?.fieldValue || "";
                       return (
                         <div className="mb-3" key={index}>
-                          <label className="form-label fw-bold">
-                            {req.label}
-                          </label>
+                          <label className="form-label fw-bold">{req.label}</label>
                           {req.type === "text" ? (
                             <input
                               type="text"
@@ -257,32 +212,19 @@ function StudentProject() {
                               placeholder={`Enter ${req.label}`}
                               name={`requirements[${req.tag}]`}
                               value={fieldValue}
-                              onChange={(e) => handleRequirementChange(e)}
+                              onChange={e => handleRequirementChange(e)}
                               disabled={!isEditMode && isSubmitted}
                             />
                           ) : (
                             <div>
-                              {fieldValue &&
-                              typeof fieldValue === "string" &&
-                              /\.(jpg|jpeg|png|gif)$/i.test(fieldValue) ? (
-                                <img
-                                  src={fieldValue}
-                                  alt="Uploaded"
-                                  style={{ maxWidth: "200px", height: "auto" }}
-                                />
+                              {fieldValue && typeof fieldValue === "string" && /\.(jpg|jpeg|png|gif)$/i.test(fieldValue) ? (
+                                <img src={fieldValue} alt="Uploaded" style={{ maxWidth: "200px", height: "auto" }} />
                               ) : fieldValue ? (
                                 <a href={fieldValue} target="_blank">
                                   View uploaded file
                                 </a>
                               ) : null}
-                              <input
-                                type="file"
-                                className="form-control mt-2"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                name={req.tag}
-                                onChange={(e) => handleRequirementChange(e)}
-                                disabled={!isEditMode && isSubmitted}
-                              />
+                              <input type="file" className="form-control mt-2" accept=".pdf,.jpg,.jpeg,.png" name={req.tag} onChange={e => handleRequirementChange(e)} disabled={!isEditMode && isSubmitted} />
                             </div>
                           )}
                         </div>
@@ -292,18 +234,10 @@ function StudentProject() {
                 )}
 
                 <div className="d-flex justify-content-between">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => navigate("/dashboard/projectlist")}
-                  >
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => navigate("/dashboard/projectlist")}>
                     Back to Project List
                   </button>
-                  <button
-                    type="submit"
-                    className="btn btn-success px-4"
-                    disabled={!isEditMode && isSubmitted}
-                  >
+                  <button type="submit" className="btn btn-success px-4" disabled={!isEditMode && isSubmitted}>
                     Submit
                   </button>
                 </div>
