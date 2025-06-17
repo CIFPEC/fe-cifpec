@@ -294,7 +294,7 @@ function ProjectList() {
                                 Edit
                               </button>
                             )}
-                            {roleId === 1 && (
+                            {/* {roleId === 1 && (
                               <button
                                 className="btn btn-sm btn-warning"
                                 onClick={() => {
@@ -304,7 +304,7 @@ function ProjectList() {
                               >
                                 Edit Booth
                               </button>
-                            )}
+                            )} */}
                           </td>
                         </tr>
                       ))
@@ -437,7 +437,6 @@ function ProjectList() {
               <div>
                 <p>
                   <strong>Project Thumbnail:</strong>{" "}
-                  {viewProject.projectThumbnail}
                 </p>
                 {viewProject.projectThumbnail && (
                   <div className="mb-3 text-center">

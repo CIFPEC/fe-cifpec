@@ -70,6 +70,7 @@ function Dashboard() {
           poster: 0,
           courseStats,
           studentList: data.studentLists || [],
+          participations: data.totalStudentsWithProjects || 0,
         });
       } catch (err) {
         console.error("Failed to fetch dashboard data:", err);
@@ -99,7 +100,7 @@ function Dashboard() {
     fetchDashboard();
     fetchBatchList();
     setIsLoading(false);
-  }, []);
+  }, [selectedBatchId]);
 
   useEffect(() => {
     if (!selectedBatchId) return;
@@ -267,7 +268,7 @@ function Dashboard() {
           </div>
 
           {infoCards.map((item, idx) => (
-            <div key={idx} className="col-12 col-sm-6 col-xl-3 mb-4">
+            <div key={idx} className="col-12 col-sm-6 col-xl-4 mb-4">
               <div className="card h-100 shadow-sm border-0">
                 <div className="card-header p-3 d-flex justify-content-between align-items-center">
                   <div>
@@ -354,8 +355,8 @@ function Dashboard() {
           </div>
         </div>
         {currentUser.roleName === "admin" && (
-          <div className="row mb-4">
-            <div className="col-md-6">
+          <div className="row mt-5">
+            <div className="col-md-4">
               <label className="form-label fw-semibold">Filter by Course</label>
               <select
                 className="form-select ps-2"
@@ -371,7 +372,7 @@ function Dashboard() {
                   ))}
               </select>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-4">
               <label className="form-label fw-semibold">
                 Filter by Category
               </label>
@@ -391,26 +392,20 @@ function Dashboard() {
             </div>
           </div>
         )}
-        {currentUser?.roleName === "admin" && (
-          <button
-            className="btn btn-sm btn-primary mb-3"
-            onClick={handleExportPDF}
-          >
-            Export to PDF
-          </button>
-        )}
         <div className="row mt-4">
           <div className="col-12">
             <div className="bg-white p-4 shadow-sm rounded h-100 border">
-              <h5 className="mb-3 fw-semibold">Filtered Project List</h5>
-              {currentUser.role === "admin" && (
-                <button
-                  className="btn btn-sm btn-primary mb-3"
-                  onClick={handleExportPDF}
-                >
-                  Export to PDF
-                </button>
-              )}
+              <div className="d-flex justify-content-between">
+                <h5 className="mb-3 fw-semibold">Filtered Project List</h5>
+                {currentUser.roleName === "admin" && (
+                  <button
+                    className="btn btn-sm btn-primary mb-3"
+                    onClick={handleExportPDF}
+                  >
+                    Export to PDF
+                  </button>
+                )}
+              </div>
               <div className="table-responsive">
                 <table
                   id="projectTable"
