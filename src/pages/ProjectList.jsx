@@ -35,30 +35,38 @@ function ProjectList() {
   const userId = decoded?.userId;
   let batchId = decoded?.batchId;
   const roleId = decoded?.roleId;
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     fetchProject();
-  },[course,categoryId]);
-  
+  }, [course, categoryId]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const getUser = await axiosInstance.get("/user/profile");
         setCurrentUser(getUser?.data?.data || {});
 
-        const getCourses = await axiosInstance.get('/courses');
+        const getCourses = await axiosInstance.get("/courses");
         setCourses(getCourses?.data?.data);
 
-        const getCategory = await axiosInstance.get('/categories');
+        const getCategory = await axiosInstance.get("/categories");
         setCategories(getCategory?.data?.data);
 
         if (roleId === 5) {
-          const resStudents = await axiosInstance.get(`/users/students?course=${courseId}`);
-          const getStudent = resStudents?.data?.data.filter(user => user.userId !== userId);
+          const resStudents = await axiosInstance.get(
+            `/users/students?course=${courseId}`
+          );
+          const getStudent = resStudents?.data?.data.filter(
+            (user) => user.userId !== userId
+          );
           setStudents(getStudent || null);
 
-          const resSupervisors = await axiosInstance.get(`/users/lecturers?course=${courseId}`);
-          const filteredSupervisors = resSupervisors?.data?.data.filter(user => user.userRole?.roleName?.toLowerCase() === "supervisor");
+          const resSupervisors = await axiosInstance.get(
+            `/users/lecturers?course=${courseId}`
+          );
+          const filteredSupervisors = resSupervisors?.data?.data.filter(
+            (user) => user.userRole?.roleName?.toLowerCase() === "supervisor"
+          );
           setSupervisors(filteredSupervisors || null);
         }
       } catch (err) {
@@ -76,27 +84,33 @@ function ProjectList() {
 
   if (isLoading) return <Loading />;
 
-  async function fetchProject(){
+  async function fetchProject() {
     try {
       let resProjects;
       if (roleId === 5) {
         resProjects = await axiosInstance.get(`/user/projects`);
         setHasProject(resProjects?.data?.data?.length > 0);
       } else if (roleId === 3) {
-        resProjects = await axiosInstance.get(`/batches/${batchId}/projects?course=${courseId}&page=1&limit=10`);
+        resProjects = await axiosInstance.get(
+          `/batches/${batchId}/projects?course=${courseId}&page=1&limit=10`
+        );
       } else if (roleId === 4) {
-        resProjects = await axiosInstance.get(`/batches/${batchId}/projects?course=${courseId}&supervisor=${userId}&page=1&limit=10`);
+        resProjects = await axiosInstance.get(
+          `/batches/${batchId}/projects?course=${courseId}&supervisor=${userId}&page=1&limit=10`
+        );
       } else if (roleId === 1) {
         const getBatch = await axiosInstance.get("/batches");
         let latestBatch = getBatch?.data?.data;
         if (latestBatch.length > 0) {
           batchId = latestBatch[0].batchId;
-          resProjects = await axiosInstance.get(`/batches/${batchId}/projects?course=${course}&category=${categoryId}&page=1&limit=10`);
+          resProjects = await axiosInstance.get(
+            `/batches/${batchId}/projects?course=${course}&category=${categoryId}&page=1&limit=10`
+          );
         }
       }
       setProjects(resProjects?.data?.data || null);
     } catch (error) {
-      console.log("ERROR FETCH PROJECT: ",error)
+      console.log("ERROR FETCH PROJECT: ", error);
     }
   }
   const handleOpenModal = () => setShowModal(true);
@@ -173,7 +187,11 @@ function ProjectList() {
                 </div>
                 <div className="col-md-4 mb-3">
                   <label className="form-label fw-bold">Course</label>
-                  <select className="form-select ps-2" value={course} onChange={e => setCourse(e.target.value)}>
+                  <select
+                    className="form-select ps-2"
+                    value={course}
+                    onChange={(e) => setCourse(e.target.value)}
+                  >
                     <option value="">-- All Courses --</option>
                     {courses &&
                       courses.map((opt, idx) => {
@@ -187,7 +205,11 @@ function ProjectList() {
                 </div>
                 <div className="col-md-4 mb-3">
                   <label className="form-label fw-bold">Category</label>
-                  <select className="form-select ps-2" value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+                  <select
+                    className="form-select ps-2"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                  >
                     <option value="">-- All Categories --</option>
                     {categories &&
                       categories.map((opt, idx) => {
@@ -205,11 +227,16 @@ function ProjectList() {
               <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
                 <h6 className="fw-bold mb-3 mb-md-0">
                   Project List
-                  {currentUser?.userCourse?.courseName ? ` ( ${currentUser.userCourse.courseName} )` : ""}
+                  {currentUser?.userCourse?.courseName
+                    ? ` ( ${currentUser.userCourse.courseName} )`
+                    : ""}
                 </h6>
                 <div className="d-flex flex-md-row flex-column align-items-md-center gap-2 w-100 w-md-auto mt-3">
                   {roleId === 5 && !hasProject && (
-                    <button onClick={handleOpenModal} className="btn btn-info w-100 w-md-auto px-4 py-2">
+                    <button
+                      onClick={handleOpenModal}
+                      className="btn btn-info w-100 w-md-auto px-4 py-2"
+                    >
                       Create New
                     </button>
                   )}
@@ -236,15 +263,34 @@ function ProjectList() {
                       projects.map((proj, index) => (
                         <tr key={index}>
                           <td>{proj.projectName}</td>
-                          <td>{proj.penyelaras || proj.courseCoordinatorName || "-"}</td>
-                          <td>{proj.penyelia || proj.supervisor || proj.courseSupervisorName || "-"}</td>
-                          <td>{proj.isFinal === false ? "In Progress" : "Final"}</td>
                           <td>
-                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleViewProject(proj)}>
+                            {proj.penyelaras ||
+                              proj.courseCoordinatorName ||
+                              "-"}
+                          </td>
+                          <td>
+                            {proj.penyelia ||
+                              proj.supervisor ||
+                              proj.courseSupervisorName ||
+                              "-"}
+                          </td>
+                          <td>
+                            {proj.isFinal === false ? "In Progress" : "Final"}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-outline-primary me-2"
+                              onClick={() => handleViewProject(proj)}
+                            >
                               View
                             </button>
                             {roleId === 5 && (
-                              <button className="btn btn-sm btn-outline-success" onClick={() => handleEditProject(proj.projectId)}>
+                              <button
+                                className="btn btn-sm btn-outline-success"
+                                onClick={() =>
+                                  handleEditProject(proj.projectId)
+                                }
+                              >
                                 Edit
                               </button>
                             )}
@@ -254,7 +300,8 @@ function ProjectList() {
                                 onClick={() => {
                                   setBoothNumber(proj.boothNumber || "");
                                   setShowBoothModal(true);
-                                }}>
+                                }}
+                              >
                                 Edit Booth
                               </button>
                             )}
@@ -304,23 +351,34 @@ function ProjectList() {
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>Project Name</Form.Label>
-                <Form.Control type="text" placeholder="Enter project name" value={projectName} onChange={e => setProjectName(e.target.value)} />
+                <Form.Control
+                  type="text"
+                  placeholder="Enter project name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                />
               </Form.Group>
               <Form.Label>Group Members</Form.Label>
               <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Your Name" value={currentUser.userName} readOnly />
+                <Form.Control
+                  type="text"
+                  placeholder="Your Name"
+                  value={currentUser.userName}
+                  readOnly
+                />
               </Form.Group>
-              {[1, 2].map(i => (
+              {[1, 2].map((i) => (
                 <Form.Group className="mb-2" key={i}>
                   <Form.Select
                     value={groupMembers[i]}
-                    onChange={e => {
+                    onChange={(e) => {
                       const updated = [...groupMembers];
                       updated[i] = e.target.value;
                       setGroupMembers(updated);
-                    }}>
+                    }}
+                  >
                     <option value="">--select member--</option>
-                    {students.map(student => (
+                    {students.map((student) => (
                       <option key={student.userId} value={student.userName}>
                         {student.userName}
                       </option>
@@ -330,11 +388,17 @@ function ProjectList() {
               ))}
               <Form.Group className="mb-3">
                 <Form.Label>Supervisor</Form.Label>
-                <Form.Select value={supervisor} onChange={e => setSupervisor(e.target.value)}>
+                <Form.Select
+                  value={supervisor}
+                  onChange={(e) => setSupervisor(e.target.value)}
+                >
                   <option value="">--select supervisor--</option>
                   {supervisors
-                    .filter(sup => sup.userRole?.roleName?.toLowerCase() === "supervisor")
-                    .map(sup => (
+                    .filter(
+                      (sup) =>
+                        sup.userRole?.roleName?.toLowerCase() === "supervisor"
+                    )
+                    .map((sup) => (
                       <option key={sup.userId} value={sup.userName}>
                         {sup.userName}
                       </option>
@@ -343,7 +407,13 @@ function ProjectList() {
               </Form.Group>
               <Form.Group className="mb-3 me-5">
                 <Form.Label>No Booth</Form.Label>
-                <Form.Control className="border ps-2" type="text" placeholder="Contoh: B12" value={boothNumber} onChange={e => setBoothNumber(e.target.value)} />
+                <Form.Control
+                  className="border ps-2"
+                  type="text"
+                  placeholder="Contoh: B12"
+                  value={boothNumber}
+                  onChange={(e) => setBoothNumber(e.target.value)}
+                />
               </Form.Group>
             </Form>
           </Modal.Body>
@@ -366,6 +436,30 @@ function ProjectList() {
             {viewProject && (
               <div>
                 <p>
+                  <strong>Project Thumbnail:</strong>{" "}
+                  {viewProject.projectThumbnail}
+                </p>
+                {viewProject.projectThumbnail && (
+                  <div className="mb-3 text-center">
+                    <img
+                      src={
+                        viewProject.projectThumbnail.startsWith("http")
+                          ? viewProject.projectThumbnail
+                          : `${import.meta.env.VITE_API_URL}/uploads/${
+                              viewProject.projectThumbnail
+                            }`
+                      }
+                      alt="Project Thumbnail"
+                      className="img-fluid rounded mb-3"
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "300px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </div>
+                )}
+                <p>
                   <strong>Project Name:</strong> {viewProject.projectName}
                 </p>
                 <div>
@@ -383,22 +477,25 @@ function ProjectList() {
                   <strong>Booth Number:</strong> {viewProject.boothNumber}
                 </p>
                 <p>
-                  <strong>Category:</strong> {viewProject?.category?.categoryName}
+                  <strong>Category:</strong>{" "}
+                  {viewProject?.category?.categoryName}
                 </p>
                 <p>
                   <strong>Course Name:</strong> {viewProject?.courseName}
                 </p>
                 <p>
-                  <strong>Supervisor:</strong> {viewProject.courseSupervisorName || "-"}
+                  <strong>Supervisor:</strong>{" "}
+                  {viewProject.courseSupervisorName || "-"}
                 </p>
                 <p>
-                  <strong>Status:</strong> {viewProject.isFinal === false ? "in Progress" : "Final"}
+                  <strong>Status:</strong>{" "}
+                  {viewProject.isFinal === false ? "in Progress" : "Final"}
                 </p>
                 {viewProject.projectRequirements.map((req, idx) =>
                   req.fieldType === "file" ? (
                     <p key={idx}>
                       <strong>{req.fieldName}:</strong>{" "}
-                      <a href={req.fieldValue} target="_blank">
+                      <a href={req.fieldValue} target="_blank" rel="noreferrer">
                         View
                       </a>
                     </p>
@@ -419,25 +516,38 @@ function ProjectList() {
         </Modal>
 
         {/* Modal Admin Edit */}
-        <Modal show={showBoothModal} onHide={() => setShowBoothModal(false)} centered>
+        <Modal
+          show={showBoothModal}
+          onHide={() => setShowBoothModal(false)}
+          centered
+        >
           <Modal.Header closeButton>
             <Modal.Title>Edit No Booth</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form.Group>
               <Form.Label>No Booth</Form.Label>
-              <Form.Control className="border ps-2" type="text" value={boothNumber} onChange={e => setBoothNumber(e.target.value)} />
+              <Form.Control
+                className="border ps-2"
+                type="text"
+                value={boothNumber}
+                onChange={(e) => setBoothNumber(e.target.value)}
+              />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowBoothModal(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowBoothModal(false)}
+            >
               Close
             </Button>
             <Button
               variant="primary"
               onClick={() => {
                 setShowBoothModal(false);
-              }}>
+              }}
+            >
               Save (Dummy)
             </Button>
           </Modal.Footer>

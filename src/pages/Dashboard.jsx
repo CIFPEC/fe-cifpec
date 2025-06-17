@@ -10,8 +10,7 @@ function Dashboard() {
   const [dashboardData, setDashboardData] = useState({
     students: 0,
     projects: 0,
-    slide: 0,
-    poster: 0,
+    participations: 0,
     courseStats: {},
     studentList: [],
   });
@@ -88,13 +87,13 @@ function Dashboard() {
       }
     };
 
-    const fetchCourseAndCategory = async ()=> {
-      const getCourse = await axiosInstance.get('/courses');
+    const fetchCourseAndCategory = async () => {
+      const getCourse = await axiosInstance.get("/courses");
       setCourses(getCourse?.data?.data || []);
 
-      const getCategory = await axiosInstance.get('/categories');
+      const getCategory = await axiosInstance.get("/categories");
       setCategories(getCategory?.data?.data || []);
-    }
+    };
 
     fetchCourseAndCategory();
     fetchDashboard();
@@ -118,7 +117,7 @@ function Dashboard() {
     };
 
     fetchStudentProjects();
-  }, [selectedBatchId,selectedCourse,selectedCategory]);
+  }, [selectedBatchId, selectedCourse, selectedCategory]);
 
   useEffect(() => {
     if (currentUser.role === "admin") {
@@ -238,32 +237,26 @@ function Dashboard() {
 
   const infoCards = [
     {
-      label: "Current Students",
+      label: "Students",
       value: dashboardData.students,
       color: "bg-pink-100 text-pink-800",
       icon: "group",
     },
     {
-      label: "Current Projects",
+      label: "Projects",
       value: dashboardData.projects,
       color: "bg-green-100 text-green-800",
       icon: "assignment",
     },
     {
-      label: "All Students",
-      value: dashboardData.slide,
+      label: "participations by session",
+      value: dashboardData.participations,
       color: "bg-yellow-100 text-yellow-800",
       icon: "slideshow",
     },
-    {
-      label: "All Projects",
-      value: dashboardData.poster,
-      color: "bg-red-100 text-red-800",
-      icon: "image",
-    },
   ];
 
-  if(isLoading) return <Loading/>;
+  if (isLoading) return <Loading />;
 
   return (
     <Main>
@@ -351,43 +344,6 @@ function Dashboard() {
         <div className="row mt-4">
           <div className="col-12">
             <div className="bg-white p-4 shadow-sm rounded h-100 border">
-              <h5 className="mb-3 fw-semibold">Project Category List</h5>
-              <div className="table-responsive">
-                <table className="table table-bordered align-middle">
-                  <thead className="table-light">
-                    <tr>
-                      <th>No</th>
-                      <th>Student Project</th>
-                      <th>Course</th>
-                      <th>Category</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {studentProjects.length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className="text-center">
-                          No project available
-                        </td>
-                      </tr>
-                    ) : (
-                      studentProjects.map((item, idx) => (
-                        <tr key={item.projectId}>
-                          <td>{idx + 1}</td>
-                          <td>{item.projectName}</td>
-                          <td>{item.courseName}</td>
-                          <td>{item.category?.categoryName || "-"}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="row mt-4">
-          <div className="col-12">
-            <div className="bg-white p-4 shadow-sm rounded h-100 border">
               <h5 className="mb-3 fw-semibold">
                 Category Participation Statistics
               </h5>
@@ -407,13 +363,12 @@ function Dashboard() {
                 onChange={(e) => setSelectedCourse(e.target.value)}
               >
                 <option value="">All Courses</option>
-                {courses && courses.map(
-                  (course, i) => (
+                {courses &&
+                  courses.map((course, i) => (
                     <option key={i} value={course.courseId}>
                       {course.courseName}
                     </option>
-                  )
-                )}
+                  ))}
               </select>
             </div>
             <div className="col-md-6">
@@ -426,11 +381,12 @@ function Dashboard() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">All Categories</option>
-                {categories && categories.map((cat, i) => (
-                  <option key={i} value={cat.categoryId}>
-                    {cat.categoryName}
-                  </option>
-                ))}
+                {categories &&
+                  categories.map((cat, i) => (
+                    <option key={i} value={cat.categoryId}>
+                      {cat.categoryName}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
