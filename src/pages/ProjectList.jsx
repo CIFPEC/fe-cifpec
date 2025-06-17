@@ -166,6 +166,7 @@ function ProjectList() {
   };
 
   const handleViewProject = (project) => {
+    console.log("P: ",project)
     setViewProject(project);
   };
 
