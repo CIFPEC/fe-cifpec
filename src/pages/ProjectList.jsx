@@ -406,16 +406,6 @@ function ProjectList() {
                     ))}
                 </Form.Select>
               </Form.Group>
-              <Form.Group className="mb-3 me-5">
-                <Form.Label>No Booth</Form.Label>
-                <Form.Control
-                  className="border ps-2"
-                  type="text"
-                  placeholder="Contoh: B12"
-                  value={boothNumber}
-                  onChange={(e) => setBoothNumber(e.target.value)}
-                />
-              </Form.Group>
             </Form>
           </Modal.Body>
           <Modal.Footer>

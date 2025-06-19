@@ -13,7 +13,8 @@ function StudentProject() {
   const [projectName, setProjectName] = useState("");
   const [courseName, setCourseName] = useState("");
   const [courseList, setCourseList] = useState([]);
-  const [groupMembers, setGroupMembers] = useState(["", "", ""]);
+  const [groupMembers, setGroupMembers] = useState(["", ""]);
+  const [currentUser, setCurrentUser] = useState([""]);
   const [supervisor, setSupervisor] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [batchRequirements, setBatchRequirements] = useState([]);
@@ -66,11 +67,10 @@ function StudentProject() {
 
           if (project) {
             setProjectName(project.projectName);
-            setGroupMembers(
-              project.projectTeamMembers.map((m) => m.userName || "")
-            );
+            setGroupMembers(project.projectTeamMembers.filter(m => m.userId !== decoded?.userId).map(m => m.userName || ""));
+            setCurrentUser(project.projectTeamMembers.find(m => m.userId === decoded?.userId)?.userName || "");
             setBoothNumber(project.boothNumber);
-            setFieldName(project?.category?.categoryId);
+            setFieldName(project?.category?.categoryId || "");
             setSupervisor(project.courseSupervisorName || "");
             setOldRequirements(project?.projectRequirements || []);
             setProjectThumbnail(project?.projectThumbnail || null);
@@ -165,6 +165,7 @@ function StudentProject() {
                       className="form-control"
                       value={courseName}
                       readOnly
+                      disabled
                     />
                   </div>
 
@@ -173,8 +174,9 @@ function StudentProject() {
                     <input
                       type="text"
                       className="form-control"
-                      value={groupMembers[0]}
+                      value={currentUser}
                       readOnly
+                      disabled
                     />
                   </div>
                   <div className="col-md-4 mb-3">
@@ -182,8 +184,9 @@ function StudentProject() {
                     <input
                       type="text"
                       className="form-control"
-                      value={groupMembers[1]}
+                      value={groupMembers[0]}
                       readOnly
+                      disabled
                     />
                   </div>
                   <div className="col-md-4 mb-3">
@@ -191,8 +194,9 @@ function StudentProject() {
                     <input
                       type="text"
                       className="form-control"
-                      value={groupMembers[2]}
+                      value={groupMembers[1]}
                       readOnly
+                      disabled
                     />
                   </div>
 
@@ -205,6 +209,7 @@ function StudentProject() {
                       className="form-control"
                       value={supervisor}
                       readOnly
+                      disabled
                     />
                   </div>
 
@@ -227,11 +232,9 @@ function StudentProject() {
                       <input
                         type="text"
                         className="form-control"
-                        value={
-                          categories.find((c) => c.categoryId === fieldName)
-                            ?.categoryName || ""
-                        }
+                        value={categories[fieldName]?.categoryName}
                         readOnly
+                        disabled
                       />
                     ) : (
                       <select
