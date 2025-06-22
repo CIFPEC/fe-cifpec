@@ -25,23 +25,7 @@ function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleExportPDF = () => {
-    import("jspdf").then((jsPDF) => {
-      import("html2canvas").then((html2canvas) => {
-        const input = document.getElementById("projectTable");
-        html2canvas.default(input).then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF.default();
-          const imgProps = pdf.getImageProperties(imgData);
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-          pdf.save("project-list.pdf");
-        });
-      });
-    });
-  };
+  const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -110,7 +94,6 @@ function Dashboard() {
         const res = await axiosInstance.get(
           `/batches/${selectedBatchId}/projects?course=${selectedCourse}&category=${selectedCategory}&page=1&limit=10`
         );
-        console.log("Project API result:", res.data);
         setStudentProjects(res.data?.data || []);
       } catch (err) {
         console.error("Failed to fetch student projects:", err);
@@ -258,6 +241,24 @@ function Dashboard() {
   ];
 
   if (isLoading) return <Loading />;
+  if (exportLoading) return <Loading />;
+
+  const handleExportPDF = async () => {
+    try {
+      const res = await axiosInstance.get(`/projects/reports/pdf?batch=${selectedBatchId}&course=${selectedCourse}&category=${selectedCategory}`, {
+        responseType: "blob",
+      });
+
+      const file = new Blob([res.data], { type: "application/pdf" });
+      const fileURL = URL.createObjectURL(file);
+
+      const link = document.createElement("a");
+      link.href = fileURL;
+      window.open(link.href);
+    } catch (err) {
+      console.error("Gagal muat turun PDF:", err);
+    }
+  };
 
   return (
     <Main>

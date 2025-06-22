@@ -103,7 +103,7 @@ function Course() {
                   <thead className="table-light">
                     <tr>
                       <th>Name</th>
-                      <th>Supervisor</th>
+                      <th>Coordinator</th>
                       <th>Action</th>
                     </tr>
                   </thead>
